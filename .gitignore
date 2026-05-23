@@ -1,0 +1,15 @@
+#Ambiente Virtual
+venv/
+.venv/
+env/
+.env/
+#Banco de dados local (Cada um terá o seu em desenvolvimento)
+db.sqlite3
+
+#Arquivos temporários do Python
+pycache/
+*.pyc
+
+#Arquivos do editor de código (VS Code, PyCharm)
+.vscode/
+.idea/
