@@ -292,7 +292,7 @@ def listar_trabalhos(request):
 
     return resposta(trabalhos)
 
-
+#t
 @csrf_exempt
 def entrar_grupo(request):
     if request.method == "OPTIONS":
