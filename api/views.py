@@ -292,7 +292,7 @@ def listar_trabalhos(request):
 
     return resposta(trabalhos)
 
-
+#t
 @csrf_exempt
 def entrar_grupo(request):
     if request.method == "OPTIONS":
@@ -331,3 +331,4 @@ def entrar_grupo(request):
                     return resposta({"sucesso": True, "mensagem": "Você entrou no grupo com sucesso"})
 
     return resposta({"sucesso": False, "mensagem": "Trabalho ou grupo não encontrado"}, 404)
+
