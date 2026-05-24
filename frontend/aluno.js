@@ -95,7 +95,7 @@ function montarTrabalhoHTML(trabalho) {
                 </div>
             </div>
 
-            <h4>Grupos Disponíveis:</h4>
+            <h4>Grupos disponíveis</h4>
 
             <div class="aluno-grupos-grid">
                 ${trabalho.grupos.map(grupo => montarGrupoHTML(trabalho, grupo)).join("")}
@@ -110,10 +110,10 @@ function montarGrupoHTML(trabalho, grupo) {
     const livres = limite - ocupados;
     const lotado = livres <= 0;
 
-    const alunoEstaNesteGrupo = grupo.alunos.some(a => a.id === aluno.id);
+    const alunoNoGrupo = grupo.alunos.find(a => Number(a.id) === Number(aluno.id));
 
     const alunoEstaEmOutroGrupoDoTrabalho = trabalho.grupos.some(
-        g => g.alunos.some(a => a.id === aluno.id)
+        g => g.alunos.some(a => Number(a.id) === Number(aluno.id))
     );
 
     let statusClasse = "status-verde";
@@ -126,7 +126,7 @@ function montarGrupoHTML(trabalho, grupo) {
 
     let botao = "";
 
-    if (alunoEstaNesteGrupo) {
+    if (alunoNoGrupo) {
         botao = `
             <button
                 type="button"
@@ -167,13 +167,11 @@ function montarGrupoHTML(trabalho, grupo) {
                             ${lotado ? "Cheio" : `${livres} vaga(s)`}
                         </span>
 
-                        ${alunoEstaNesteGrupo ? `
+                        ${alunoNoGrupo ? `
                             <span class="status-inscrito">
                                 Você está neste grupo
                             </span>
                         ` : ""}
-
-                        ${alunoEstaNesteGrupo ? montarAreaAlunoGrupo(grupo) : ""}
                     </div>
                 </div>
 
@@ -191,6 +189,78 @@ function montarGrupoHTML(trabalho, grupo) {
                     : "Nenhum aluno ainda"
                 }
             </p>
+
+            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) : ""}
+        </div>
+    `;
+}
+
+function montarAreaAlunoGrupo(grupo, alunoNoGrupo) {
+    const funcoes = grupo.funcoesDisponiveis
+        ? grupo.funcoesDisponiveis
+            .split("\n")
+            .map(f => f.trim())
+            .filter(f => f !== "")
+        : [];
+
+    return `
+        <div class="area-participacao-aluno">
+            <h4>Minha participação</h4>
+
+            <div class="nota-aluno-box">
+                <strong>Sua nota:</strong>
+                <span>${alunoNoGrupo.nota || "Professor ainda não lançou"}</span>
+            </div>
+
+            ${
+                alunoNoGrupo.observacao
+                ? `<p><strong>Observação do professor:</strong> ${alunoNoGrupo.observacao}</p>`
+                : ""
+            }
+
+            <label>Escolha sua função</label>
+
+            <select id="funcaoAluno-${grupo.id}">
+                <option value="">Selecione uma função</option>
+
+                ${funcoes.map(funcao => `
+                    <option
+                        value="${funcao}"
+                        ${alunoNoGrupo.funcao === funcao ? "selected" : ""}
+                    >
+                        ${funcao}
+                    </option>
+                `).join("")}
+            </select>
+
+            <label>Anotações</label>
+
+            <textarea
+                id="anotacaoAluno-${grupo.id}"
+                rows="3"
+                placeholder="Escreva suas anotações sobre sua parte..."
+            >${alunoNoGrupo.anotacaoAluno || ""}</textarea>
+
+            <label>Enviar arquivo</label>
+
+            <input
+                type="file"
+                id="arquivoAluno-${grupo.id}"
+            >
+
+            ${
+                alunoNoGrupo.arquivoUrl
+                ? `<p><a href="http://127.0.0.1:8000${alunoNoGrupo.arquivoUrl}" target="_blank">Ver arquivo enviado</a></p>`
+                : ""
+            }
+
+            <button
+                type="button"
+                class="btn-confirmar"
+                onclick="salvarMinhaParticipacao(${grupo.id})"
+            >
+                Salvar minha participação
+            </button>
         </div>
     `;
 }
@@ -204,7 +274,7 @@ function alternarMateria(botao) {
 }
 
 function abrirDetalhes(trabalhoId) {
-    trabalhoSelecionado = todosTrabalhos.find(t => t.id === trabalhoId);
+    trabalhoSelecionado = todosTrabalhos.find(t => Number(t.id) === Number(trabalhoId));
 
     document.getElementById("modalTitulo").innerText = trabalhoSelecionado.titulo;
     document.getElementById("modalMateria").innerText =
@@ -247,15 +317,15 @@ function montarDetalheGrupoHTML(grupo) {
     const livres = limite - ocupados;
     const lotado = livres <= 0;
 
-    const alunoEstaNesteGrupo = grupo.alunos.some(a => a.id === aluno.id);
+    const alunoNoGrupo = grupo.alunos.find(a => Number(a.id) === Number(aluno.id));
 
     const alunoEstaEmOutroGrupoDoTrabalho = trabalhoSelecionado.grupos.some(
-        g => g.alunos.some(a => a.id === aluno.id)
+        g => g.alunos.some(a => Number(a.id) === Number(aluno.id))
     );
 
     let botao = "";
 
-    if (alunoEstaNesteGrupo) {
+    if (alunoNoGrupo) {
         botao = `
             <button
                 type="button"
@@ -265,7 +335,6 @@ function montarDetalheGrupoHTML(grupo) {
                 Sair deste grupo
             </button>
         `;
-        
     } else if (alunoEstaEmOutroGrupoDoTrabalho) {
         botao = `
             <button type="button" disabled>
@@ -294,7 +363,7 @@ function montarDetalheGrupoHTML(grupo) {
                         ${lotado ? "Cheio" : `${livres} vaga(s)`}
                     </span>
 
-                    ${alunoEstaNesteGrupo ? `
+                    ${alunoNoGrupo ? `
                         <span class="status-inscrito">
                             Você está neste grupo
                         </span>
@@ -306,11 +375,14 @@ function montarDetalheGrupoHTML(grupo) {
 
             <p><strong>Tema:</strong> ${grupo.tema}</p>
             <p><strong>Participantes:</strong> ${ocupados}/${limite}</p>
+
             <p><strong>Alunos:</strong> ${
                 grupo.alunos.length > 0
                 ? grupo.alunos.map(a => a.nome).join(", ")
                 : "Nenhum aluno ainda"
             }</p>
+
+            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) : ""}
         </div>
     `;
 }
@@ -320,11 +392,11 @@ function fecharDetalhes() {
 }
 
 function abrirInscricao(trabalhoId, grupoId) {
-    trabalhoSelecionado = todosTrabalhos.find(t => t.id === trabalhoId);
-    grupoSelecionado = trabalhoSelecionado.grupos.find(g => g.id === grupoId);
+    trabalhoSelecionado = todosTrabalhos.find(t => Number(t.id) === Number(trabalhoId));
+    grupoSelecionado = trabalhoSelecionado.grupos.find(g => Number(g.id) === Number(grupoId));
 
     const alunoJaInscrito = trabalhoSelecionado.grupos.find(
-        grupo => grupo.alunos.some(a => a.id === aluno.id)
+        grupo => grupo.alunos.some(a => Number(a.id) === Number(aluno.id))
     );
 
     if (alunoJaInscrito) {
@@ -335,6 +407,23 @@ function abrirInscricao(trabalhoId, grupoId) {
     }
 
     document.getElementById("modalGrupoNome").innerText = grupoSelecionado.nome;
+
+    const funcoes = grupoSelecionado.funcoesDisponiveis
+        ? grupoSelecionado.funcoesDisponiveis
+            .split("\n")
+            .map(f => f.trim())
+            .filter(f => f !== "")
+        : [];
+
+    document.getElementById("campoFuncaoGrupo").innerHTML = `
+        <label>Função no grupo</label>
+        <select id="funcaoGrupoAluno">
+            <option value="">Selecione sua função</option>
+            ${funcoes.map(funcao => `
+                <option value="${funcao}">${funcao}</option>
+            `).join("")}
+        </select>
+    `;
 
     if (trabalhoSelecionado.usarSenha) {
         document.getElementById("campoSenhaGrupo").innerHTML = `
@@ -369,6 +458,13 @@ async function confirmarInscricao() {
         senha = document.getElementById("senhaGrupoAluno").value;
     }
 
+    const funcao = document.getElementById("funcaoGrupoAluno").value;
+
+    if (!funcao) {
+        alert("Escolha sua função no grupo.");
+        return;
+    }
+
     const resposta = await fetch(`${API}/entrar-grupo/`, {
         method: "POST",
         headers: {
@@ -377,7 +473,8 @@ async function confirmarInscricao() {
         body: JSON.stringify({
             alunoId: aluno.id,
             grupoId: grupoSelecionado.id,
-            senha: senha
+            senha: senha,
+            funcao: funcao
         })
     });
 
@@ -393,15 +490,12 @@ async function confirmarInscricao() {
     alert(resultado.mensagem);
 
     if (resultado.sucesso) {
-        grupoSelecionado.alunos.push({
-            id: aluno.id,
-            nome: aluno.nome,
-            matricula: aluno.matricula
-        });
-
         fecharInscricao();
+        await carregarTrabalhosAluno();
 
-        abrirDetalhes(trabalhoSelecionado.id);
+        if (trabalhoSelecionado) {
+            abrirDetalhes(trabalhoSelecionado.id);
+        }
     }
 }
 
@@ -428,25 +522,15 @@ async function sairGrupo(grupoId) {
     alert(resultado.mensagem);
 
     if (resultado.sucesso) {
-        trabalhoSelecionado.grupos.forEach(grupo => {
-            grupo.alunos = grupo.alunos.filter(
-                a => a.id !== aluno.id
-            );
-        });
+        await carregarTrabalhosAluno();
 
-        abrirDetalhes(trabalhoSelecionado.id);
+        if (trabalhoSelecionado) {
+            abrirDetalhes(trabalhoSelecionado.id);
+        }
     }
 }
 
-function formatarData(data) {
-    if (!data) return "";
-
-    const partes = data.split("-");
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
 async function salvarMinhaParticipacao(grupoId) {
-
     const funcao = document.getElementById(`funcaoAluno-${grupoId}`).value;
     const anotacaoAluno = document.getElementById(`anotacaoAluno-${grupoId}`).value;
     const arquivoInput = document.getElementById(`arquivoAluno-${grupoId}`);
@@ -473,97 +557,18 @@ async function salvarMinhaParticipacao(grupoId) {
 
     if (resultado.sucesso) {
         await carregarTrabalhosAluno();
+
+        if (trabalhoSelecionado) {
+            abrirDetalhes(trabalhoSelecionado.id);
+        }
     }
+}
+
+function formatarData(data) {
+    if (!data) return "";
+
+    const partes = data.split("-");
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
 carregarTrabalhosAluno();
-
-function montarAreaAlunoGrupo(grupo) {
-
-    const alunoNoGrupo = grupo.alunos.find(a => a.id === aluno.id);
-
-    const funcoes = grupo.funcoesDisponiveis
-        ? grupo.funcoesDisponiveis
-            .split(",")
-            .map(f => f.trim())
-            .filter(f => f !== "")
-        : [];
-
-    return `
-        <div class="area-participacao-aluno">
-
-            <h4>Minha participação</h4>
-
-            <label>Escolha sua função</label>
-
-            <select id="funcaoAluno-${grupo.id}">
-                <option value="">Selecione uma função</option>
-
-                ${funcoes.map(funcao => `
-                    <option
-                        value="${funcao}"
-                        ${alunoNoGrupo && alunoNoGrupo.funcao === funcao ? "selected" : ""}
-                    >
-                        ${funcao}
-                    </option>
-                `).join("")}
-            </select>
-
-            <label>Anotações</label>
-
-            <textarea
-                id="anotacaoAluno-${grupo.id}"
-                rows="3"
-                placeholder="Escreva suas anotações sobre sua parte..."
-            >${alunoNoGrupo ? alunoNoGrupo.anotacaoAluno || "" : ""}</textarea>
-
-            <label>Enviar arquivo</label>
-
-            <input
-                type="file"
-                id="arquivoAluno-${grupo.id}"
-            >
-
-            ${
-                alunoNoGrupo && alunoNoGrupo.arquivoUrl
-                ? `<p><a href="http://127.0.0.1:8000${alunoNoGrupo.arquivoUrl}" target="_blank">Ver arquivo enviado</a></p>`
-                : ""
-            }
-
-            <button
-                type="button"
-                class="btn-confirmar"
-                onclick="salvarMinhaParticipacao(${grupo.id})"
-            >
-                Salvar minha participação
-            </button>
-
-        </div>
-    `;
-}
-
-async function salvarMinhaParticipacao(grupoId) {
-    const funcao = document.getElementById(`funcaoAluno-${grupoId}`).value;
-    const anotacaoAluno = document.getElementById(`anotacaoAluno-${grupoId}`).value;
-    const arquivoInput = document.getElementById(`arquivoAluno-${grupoId}`);
-
-    const formData = new FormData();
-
-    formData.append("alunoId", aluno.id);
-    formData.append("grupoId", grupoId);
-    formData.append("funcao", funcao);
-    formData.append("anotacaoAluno", anotacaoAluno);
-
-    if (arquivoInput.files.length > 0) {
-        formData.append("arquivo", arquivoInput.files[0]);
-    }
-
-    const resposta = await fetch(`${API}/atualizar-minha-participacao/`, {
-        method: "POST",
-        body: formData
-    });
-
-    const resultado = await resposta.json();
-
-    alert(resultado.mensagem);
-}

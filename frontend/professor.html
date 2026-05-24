@@ -2,20 +2,20 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Área do Professor</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body class="professor-page">
 
 <header class="prof-header">
     <div>
         <h1>Área do Professor</h1>
-        <p id="nomeProfessor"></p>
+        <p id="nomeProfessor">Carregando professor...</p>
     </div>
 
-    <button class="btn-sair" onclick="sair()">
-        Sair
-    </button>
+    <button class="btn-sair" onclick="sair()">Sair</button>
 </header>
 
 <main class="prof-container">
@@ -23,51 +23,59 @@
     <section class="prof-card">
         <h2>📄 Criar Trabalho</h2>
 
-        <label>Matéria *</label>
+        <label for="materia">Matéria *</label>
         <select id="materia"></select>
 
-        <label>Título do Trabalho *</label>
+        <label for="titulo">Título do Trabalho *</label>
         <input
             type="text"
             id="titulo"
-            placeholder="Digite o título do trabalho"
+            placeholder="Ex: Trabalho de Banco de Dados"
         >
 
         <div class="prof-grid">
             <div>
-                <label>Data de Início *</label>
+                <label for="dataInicio">Data de Início *</label>
                 <input type="date" id="dataInicio">
             </div>
 
             <div>
-                <label>Data Final *</label>
+                <label for="dataFim">Data Final *</label>
                 <input type="date" id="dataFim">
             </div>
         </div>
 
         <label class="checkbox-line">
             <input type="checkbox" id="usarSenha">
-            Definir senha para os grupos
+            Usar senha para entrar nos grupos
         </label>
 
-        <label>Senha dos grupos</label>
+        <label for="senhaGrupo">Senha dos grupos</label>
         <input
             type="text"
             id="senhaGrupo"
-            placeholder="Digite a senha dos grupos"
+            placeholder="Opcional. Ex: grupo123"
         >
 
         <div class="grupo-topo">
-            <h3>👥 Grupos</h3>
-            <button type="button" onclick="adicionarGrupoVisual()">
+            <div>
+                <h3>👥 Grupos do trabalho</h3>
+                <p>Crie cada grupo em uma caixa separada, com tema, limite e funções.</p>
+            </div>
+
+            <button
+                type="button"
+                class="btn-secundario"
+                onclick="adicionarGrupoVisual()"
+            >
                 + Adicionar Grupo
             </button>
         </div>
 
         <div id="gruposProfessor" class="grupos-area">
-            <p class="empty-box">
-                Nenhum grupo adicionado. Clique em "Adicionar Grupo" para começar.
-            </p>
+            <div class="empty-box">
+                Nenhum grupo adicionado. Clique em “Adicionar Grupo” para começar.
+            </div>
         </div>
 
         <button class="btn-criar" onclick="criarTrabalho()">
@@ -78,7 +86,7 @@
     </section>
 
     <section class="prof-card">
-        <h2>📄 Trabalhos Criados</h2>
+        <h2>📚 Trabalhos Criados</h2>
 
         <div id="listaTrabalhos">
             <div class="empty-box">
@@ -91,5 +99,6 @@
 
 <script src="script.js"></script>
 <script src="professor.js"></script>
+
 </body>
 </html>

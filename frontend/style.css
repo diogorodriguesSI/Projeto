@@ -1301,3 +1301,85 @@ button:disabled {
     border-radius: 10px;
     margin-bottom: 10px;
 }
+
+.funcoes-box {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #f8fafc;
+    border: 1px solid #dbeafe;
+    padding: 15px;
+    border-radius: 12px;
+}
+
+.linha-funcao {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.btn-secundario {
+    background: #0f172a;
+}
+
+.btn-secundario:hover {
+    background: #1e293b;
+}
+
+.btn-remover {
+    background: #dc2626;
+    margin-top: 0;
+}
+
+.btn-remover:hover {
+    background: #b91c1c;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0 15px 0;
+}
+
+.tags span {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 7px 12px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.aluno-nota {
+    margin-top: 12px;
+    padding: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: 1fr 180px;
+    gap: 15px;
+    align-items: center;
+}
+
+.nota-box {
+    margin-top: 12px;
+    padding: 14px;
+    background: #ecfdf5;
+    border: 1px solid #86efac;
+    border-radius: 12px;
+}
+
+.nota-box h4 {
+    color: #166534;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 700px) {
+    .linha-funcao,
+    .aluno-nota {
+        grid-template-columns: 1fr;
+    }
+}

@@ -21,10 +21,9 @@ usuario.materias.forEach((materia) => {
 function adicionarGrupoVisual() {
     gruposVisuais.push({
         nome: `Grupo ${gruposVisuais.length + 1}`,
-        limite: 1,
+        limite: 4,
         tema: "",
-        regras: "",
-        anotacoes: ""
+        funcoes: ["Líder", "Pesquisador", "Documentador"]
     });
 
     renderizarGrupos();
@@ -35,14 +34,32 @@ function removerGrupoVisual(index) {
     renderizarGrupos();
 }
 
+function atualizarGrupo(index, campo, valor) {
+    gruposVisuais[index][campo] = valor;
+}
+
+function atualizarFuncao(indexGrupo, indexFuncao, valor) {
+    gruposVisuais[indexGrupo].funcoes[indexFuncao] = valor;
+}
+
+function adicionarFuncaoGrupo(indexGrupo) {
+    gruposVisuais[indexGrupo].funcoes.push("");
+    renderizarGrupos();
+}
+
+function removerFuncaoGrupo(indexGrupo, indexFuncao) {
+    gruposVisuais[indexGrupo].funcoes.splice(indexFuncao, 1);
+    renderizarGrupos();
+}
+
 function renderizarGrupos() {
     gruposProfessor.innerHTML = "";
 
     if (gruposVisuais.length === 0) {
         gruposProfessor.innerHTML = `
-            <p class="empty-box">
+            <div class="empty-box">
                 Nenhum grupo adicionado. Clique em "Adicionar Grupo" para começar.
-            </p>
+            </div>
         `;
         return;
     }
@@ -65,7 +82,7 @@ function renderizarGrupos() {
                 </button>
             </div>
 
-            <label>Número de Participantes</label>
+            <label>Número de participantes</label>
             <input
                 type="number"
                 min="1"
@@ -73,7 +90,7 @@ function renderizarGrupos() {
                 onchange="atualizarGrupo(${index}, 'limite', this.value)"
             >
 
-            <label>Tema do Grupo</label>
+            <label>Tema do grupo</label>
             <input
                 type="text"
                 value="${grupo.tema}"
@@ -81,80 +98,119 @@ function renderizarGrupos() {
                 placeholder="Ex: Banco de Dados"
             >
 
-            <label>Regras do Grupo</label>
-            <textarea
-                rows="3"
-                onchange="atualizarGrupo(${index}, 'regras', this.value)"
-                placeholder="Descreva as regras deste grupo..."
-            >${grupo.regras}</textarea>
+            <label>Funções disponíveis para este grupo</label>
 
-            <label>Anotações</label>
-            <textarea
-                rows="3"
-                onchange="atualizarGrupo(${index}, 'anotacoes', this.value)"
-                placeholder="Anotações adicionais..."
-            >${grupo.anotacoes}</textarea>
+            <div class="funcoes-box">
+                ${grupo.funcoes.map((funcao, i) => `
+                    <div class="linha-funcao">
+                        <input
+                            type="text"
+                            value="${funcao}"
+                            onchange="atualizarFuncao(${index}, ${i}, this.value)"
+                            placeholder="Ex: Líder, Pesquisador, Programador"
+                        >
+
+                        <button
+                            type="button"
+                            class="btn-remover"
+                            onclick="removerFuncaoGrupo(${index}, ${i})"
+                        >
+                            Remover
+                        </button>
+                    </div>
+                `).join("")}
+
+                <button
+                    type="button"
+                    class="btn-secundario"
+                    onclick="adicionarFuncaoGrupo(${index})"
+                >
+                    + Adicionar função
+                </button>
+            </div>
         `;
 
         gruposProfessor.appendChild(div);
     });
 }
 
-function atualizarGrupo(index, campo, valor) {
-    gruposVisuais[index][campo] = valor;
-}
-
 async function criarTrabalho() {
     const mensagem = document.getElementById("mensagem");
+    mensagem.innerText = "";
 
     if (gruposVisuais.length === 0) {
         mensagem.innerText = "Adicione pelo menos um grupo.";
         return;
     }
 
-    const titulo = document.getElementById("titulo").value;
+    const titulo = document.getElementById("titulo").value.trim();
     const dataInicio = document.getElementById("dataInicio").value;
     const dataFim = document.getElementById("dataFim").value;
+    const usarSenha = document.getElementById("usarSenha").checked;
+    const senhaGrupo = document.getElementById("senhaGrupo").value.trim();
 
     if (!titulo || !dataInicio || !dataFim) {
         mensagem.innerText = "Preencha todos os campos obrigatórios.";
         return;
     }
 
+    const algumGrupoSemTema = gruposVisuais.some(g => !g.tema.trim());
+
+    if (algumGrupoSemTema) {
+        mensagem.innerText = "Todos os grupos precisam ter um tema.";
+        return;
+    }
+
+    const funcoesGerais = gruposVisuais[0].funcoes
+        .map(f => f.trim())
+        .filter(f => f !== "");
+
+    if (funcoesGerais.length === 0) {
+        mensagem.innerText = "Adicione pelo menos uma função.";
+        return;
+    }
+
     const dados = {
         professorId: usuario.id,
-        materiaId: document.getElementById("materia").value,
+        materiaId: Number(selectMateria.value),
         titulo: titulo,
         dataInicio: dataInicio,
         dataFim: dataFim,
         quantidadeGrupos: gruposVisuais.length,
-        limiteParticipantes: gruposVisuais[0].limite,
-        usarSenha: document.getElementById("usarSenha").checked,
-        senhaGrupo: document.getElementById("senhaGrupo").value,
-        temas: gruposVisuais.map(g => g.tema || g.nome)
+        limiteParticipantes: Number(gruposVisuais[0].limite),
+        usarSenha: usarSenha,
+        senhaGrupo: senhaGrupo,
+        temas: gruposVisuais.map(g => g.tema),
+        funcoes: funcoesGerais
     };
 
-    const resposta = await fetch(`${API}/criar-trabalho/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(dados)
-    });
+    try {
+        const resposta = await fetch(`${API}/criar-trabalho/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(dados)
+        });
 
-    const resultado = await resposta.json();
+        const resultado = await resposta.json();
 
-    mensagem.innerText = resultado.mensagem;
+        mensagem.innerText = resultado.mensagem;
 
-    if (resultado.sucesso) {
-        document.getElementById("titulo").value = "";
-        document.getElementById("dataInicio").value = "";
-        document.getElementById("dataFim").value = "";
-        document.getElementById("senhaGrupo").value = "";
+        if (resultado.sucesso) {
+            document.getElementById("titulo").value = "";
+            document.getElementById("dataInicio").value = "";
+            document.getElementById("dataFim").value = "";
+            document.getElementById("senhaGrupo").value = "";
+            document.getElementById("usarSenha").checked = false;
 
-        gruposVisuais = [];
-        renderizarGrupos();
-        carregarTrabalhos();
+            gruposVisuais = [];
+            renderizarGrupos();
+            carregarTrabalhos();
+        }
+
+    } catch (erro) {
+        mensagem.innerText = "Erro ao criar trabalho. Verifique se o servidor Django está ligado.";
     }
 }
 
@@ -166,7 +222,7 @@ async function carregarTrabalhos() {
     lista.innerHTML = "";
 
     const meusTrabalhos = trabalhos.filter(
-        t => t.professorId === usuario.id
+        t => Number(t.professorId) === Number(usuario.id)
     );
 
     if (meusTrabalhos.length === 0) {
@@ -187,16 +243,17 @@ async function carregarTrabalhos() {
                 <div>
                     <h3>${trabalho.titulo}</h3>
                     <p><strong>Matéria:</strong> ${trabalho.materia}</p>
+                    <p><strong>Período:</strong> ${trabalho.periodo}º Período</p>
                 </div>
 
                 <button type="button" onclick="abrirPaginaDetalhes(${trabalho.id})">
-                        Analisar
+                    Analisar
                 </button>
             </div>
 
             <div class="trabalho-info">
-                <p><strong>Data de Início:</strong><br>${formatarData(trabalho.dataInicio)}</p>
-                <p><strong>Data Final:</strong><br>${formatarData(trabalho.dataFim)}</p>
+                <p><strong>Data de início:</strong><br>${formatarData(trabalho.dataInicio)}</p>
+                <p><strong>Data final:</strong><br>${formatarData(trabalho.dataFim)}</p>
                 <p><strong>Grupos:</strong><br>${trabalho.grupos.length} grupo(s)</p>
             </div>
         `;
@@ -205,25 +262,6 @@ async function carregarTrabalhos() {
     });
 }
 
-async function abrirDetalhes(id) {
-    const resposta = await fetch(`${API}/trabalhos/`);
-    const trabalhos = await resposta.json();
-
-    const trabalho = trabalhos.find(t => t.id === id);
-
-    let texto = `${trabalho.titulo}\n\n`;
-    texto += `Matéria: ${trabalho.materia}\n`;
-    texto += `Professor: ${trabalho.professorNome}\n`;
-    texto += `Data: ${trabalho.dataInicio} até ${trabalho.dataFim}\n\n`;
-
-    trabalho.grupos.forEach(grupo => {
-        texto += `${grupo.nome}\n`;
-        texto += `Tema: ${grupo.tema}\n`;
-        texto += `Alunos: ${grupo.alunos.length}/${grupo.limiteParticipantes}\n\n`;
-    });
-
-    alert(texto);
-}
 function abrirPaginaDetalhes(trabalhoId) {
     window.location.href = `professor_detalhes.html?id=${trabalhoId}`;
 }
@@ -235,4 +273,5 @@ function formatarData(data) {
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
+renderizarGrupos();
 carregarTrabalhos();

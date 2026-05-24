@@ -14,25 +14,29 @@ from .views import (
     adicionar_grupo,
     atualizar_funcoes_grupo,
     atualizar_minha_participacao,
-    atualizar_funcoes_grupo,
-    atualizar_minha_participacao,
+    lancar_nota,
 )
 
 urlpatterns = [
     path("login/", login),
+
     path("criar-trabalho/", criar_trabalho),
     path("trabalhos/", listar_trabalhos),
+    path("trabalho/<int:trabalho_id>/", detalhes_trabalho),
+
     path("entrar-grupo/", entrar_grupo),
     path("sair-grupo/", sair_grupo),
+
+    path("adicionar-grupo/", adicionar_grupo),
     path("excluir-grupo/", excluir_grupo),
 
-    path("trabalho/<int:trabalho_id>/", detalhes_trabalho),
     path("atualizar-participacao/", atualizar_participacao),
+    path("atualizar-minha-participacao/", atualizar_minha_participacao),
+    path("atualizar-funcoes-grupo/", atualizar_funcoes_grupo),
+
     path("remover-aluno-grupo/", remover_aluno_grupo),
+
+    path("lancar-nota/", lancar_nota),
+
     path("excluir-trabalho/", excluir_trabalho),
-    path("adicionar-grupo/", adicionar_grupo),
-    path("atualizar-funcoes-grupo/", atualizar_funcoes_grupo),
-    path("atualizar-minha-participacao/", atualizar_minha_participacao),
-    path("atualizar-funcoes-grupo/", atualizar_funcoes_grupo),
-    path("atualizar-minha-participacao/", atualizar_minha_participacao),
 ]
