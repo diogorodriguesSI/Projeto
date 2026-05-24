@@ -189,8 +189,8 @@ async function carregarTrabalhos() {
                     <p><strong>Matéria:</strong> ${trabalho.materia}</p>
                 </div>
 
-                <button onclick="abrirDetalhes(${trabalho.id})">
-                    Analisar
+                <button type="button" onclick="abrirPaginaDetalhes(${trabalho.id})">
+                        Analisar
                 </button>
             </div>
 
@@ -223,6 +223,9 @@ async function abrirDetalhes(id) {
     });
 
     alert(texto);
+}
+function abrirPaginaDetalhes(trabalhoId) {
+    window.location.href = `professor_detalhes.html?id=${trabalhoId}`;
 }
 
 function formatarData(data) {

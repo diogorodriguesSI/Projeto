@@ -1,0 +1,390 @@
+const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+if (!usuario || usuario.tipo !== "professor") {
+    window.location.href = "login.html";
+}
+
+const parametros = new URLSearchParams(window.location.search);
+const trabalhoId = parametros.get("id");
+
+let trabalhoAtual = null;
+
+if (!trabalhoId) {
+    alert("Trabalho não encontrado.");
+    window.location.href = "professor.html";
+}
+
+async function carregarDetalhesTrabalho() {
+    const resposta = await fetch(`${API}/trabalho/${trabalhoId}/`);
+    const trabalho = await resposta.json();
+
+    trabalhoAtual = trabalho;
+
+    document.getElementById("tituloTrabalho").innerText = trabalho.titulo;
+
+    document.getElementById("infoTrabalho").innerText =
+        `${trabalho.materia} - ${trabalho.periodo}º Período`;
+
+    document.getElementById("resumoMateria").innerText = trabalho.materia;
+    document.getElementById("resumoProfessor").innerText = trabalho.professor;
+    document.getElementById("resumoPeriodo").innerText = `${trabalho.periodo}º`;
+    document.getElementById("resumoInicio").innerText = formatarData(trabalho.dataInicio);
+    document.getElementById("resumoFim").innerText = formatarData(trabalho.dataFim);
+    document.getElementById("resumoGrupos").innerText = trabalho.grupos.length;
+
+    renderizarGruposDetalhes();
+}
+
+function renderizarGruposDetalhes() {
+    const lista = document.getElementById("listaGruposDetalhes");
+    lista.innerHTML = "";
+
+    if (!trabalhoAtual.grupos || trabalhoAtual.grupos.length === 0) {
+        lista.innerHTML = `
+            <div class="empty-box">
+                Nenhum grupo criado neste trabalho.
+            </div>
+        `;
+        return;
+    }
+
+    trabalhoAtual.grupos.forEach(grupo => {
+        const div = document.createElement("div");
+        div.className = "detalhe-grupo-prof";
+
+        div.innerHTML = `
+            <div class="detalhe-grupo-prof-header">
+                <div>
+                    <h3>${grupo.nome}</h3>
+                    <p><strong>Tema:</strong> ${grupo.tema}</p>
+                </div>
+
+                <div class="funcoes-box">
+                    <label>Funções disponíveis para os alunos</label>
+
+                    <textarea
+                        id="funcoes-${grupo.id}"
+                        rows="3"
+                        placeholder="Ex: Pesquisa, Slides, Apresentação, Relatório"
+                    >${grupo.funcoesDisponiveis || ""}</textarea>
+
+                    <button
+                        type="button"
+                        class="btn-salvar-aluno"
+                        onclick="salvarFuncoesGrupo(${grupo.id})"
+                    >
+                        Salvar funções
+                    </button>
+                </div>
+
+                <div class="grupo-acoes-topo">
+                <div class="grupo-contador">
+                ${grupo.alunos.length}/${grupo.limiteParticipantes} alunos
+                </div>
+
+                    <button
+                        type="button"
+                        class="btn-excluir-grupo"
+                        onclick="excluirGrupo(${grupo.id})"
+                        >
+                            Excluir grupo
+                    </button>
+                </div>
+            </div>
+
+            ${
+                grupo.alunos.length === 0
+                ? `
+                    <div class="empty-box">
+                        Nenhum aluno inscrito neste grupo.
+                    </div>
+                `
+                : `
+                    <div class="tabela-alunos">
+                        ${grupo.alunos.map(aluno => montarAlunoHTML(aluno)).join("")}
+                    </div>
+                `
+            }
+        `;
+
+        lista.appendChild(div);
+    });
+}
+async function salvarFuncoesGrupo(grupoId) {
+    const funcoes = document.getElementById(`funcoes-${grupoId}`).value;
+
+    const resposta = await fetch(`${API}/atualizar-funcoes-grupo/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            grupoId,
+            funcoes
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    alert(resultado.mensagem);
+
+    if (resultado.sucesso) {
+        await carregarDetalhesTrabalho();
+    }
+}
+
+
+function montarAlunoHTML(alunoGrupo) {
+    return `
+        <div class="aluno-detalhe-card">
+
+            <div class="aluno-identidade">
+                <div class="avatar-aluno">
+                    ${pegarIniciais(alunoGrupo.nome)}
+                </div>
+
+                <div>
+                    <h4>${alunoGrupo.nome}</h4>
+                    <p>Matrícula: ${alunoGrupo.matricula}</p>
+                </div>
+            </div>
+
+            <div class="aluno-campos">
+
+                <div>
+                    <label>Função no grupo</label>
+                    <input
+                        type="text"
+                        id="funcao-${alunoGrupo.participacaoId}"
+                        value="${alunoGrupo.funcao || ""}"
+                        placeholder="Ex: Líder, Pesquisa, Slides..."
+                    >
+                </div>
+
+                <div>
+                    <label>Nota</label>
+                    <input
+                        type="number"
+                        id="nota-${alunoGrupo.participacaoId}"
+                        value="${alunoGrupo.nota || ""}"
+                        placeholder="0 a 10"
+                        min="0"
+                        max="10"
+                        step="0.1"
+                    >
+                </div>
+
+                <div class="campo-observacao">
+                    <label>Observação</label>
+                    <textarea
+                        id="observacao-${alunoGrupo.participacaoId}"
+                        rows="3"
+                        placeholder="Observações sobre participação..."
+                    >${alunoGrupo.observacao || ""}</textarea>
+                </div>
+
+            </div>
+
+            <div class="aluno-acoes">
+                <button
+                    type="button"
+                    class="btn-salvar-aluno"
+                    onclick="salvarParticipacao(${alunoGrupo.participacaoId})"
+                >
+                    Salvar
+                </button>
+
+                <button
+                    type="button"
+                    class="btn-remover-aluno"
+                    onclick="removerAlunoGrupo(${alunoGrupo.participacaoId})"
+                >
+                    Remover aluno
+                </button>
+            </div>
+
+        </div>
+    `;
+}
+
+async function salvarParticipacao(participacaoId) {
+    const funcao = document.getElementById(`funcao-${participacaoId}`).value;
+    const nota = document.getElementById(`nota-${participacaoId}`).value;
+    const observacao = document.getElementById(`observacao-${participacaoId}`).value;
+
+    const resposta = await fetch(`${API}/atualizar-participacao/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            participacaoId,
+            funcao,
+            nota,
+            observacao
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    alert(resultado.mensagem);
+
+    if (resultado.sucesso) {
+        await carregarDetalhesTrabalho();
+    }
+}
+
+async function removerAlunoGrupo(participacaoId) {
+    const confirmar = confirm(
+        "Tem certeza que deseja remover este aluno do grupo?"
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    const resposta = await fetch(`${API}/remover-aluno-grupo/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            participacaoId
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    alert(resultado.mensagem);
+
+    if (resultado.sucesso) {
+        await carregarDetalhesTrabalho();
+    }
+}
+
+function voltarProfessor() {
+    window.location.href = "professor.html";
+}
+
+function pegarIniciais(nome) {
+    return nome
+        .split(" ")
+        .slice(0, 2)
+        .map(parte => parte[0])
+        .join("")
+        .toUpperCase();
+}
+
+function formatarData(data) {
+    if (!data) return "";
+
+    const partes = data.split("-");
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+carregarDetalhesTrabalho();
+
+
+
+async function excluirGrupo(grupoId) {
+    const confirmar = confirm(
+        "Tem certeza que deseja excluir este grupo? Todos os alunos serão removidos dele."
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    const resposta = await fetch(`${API}/excluir-grupo/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            grupoId: grupoId
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    alert(resultado.mensagem);
+
+    if (resultado.sucesso) {
+        await carregarDetalhesTrabalho();
+    }
+}
+function abrirModalAdicionarGrupo() {
+    document.getElementById("modalAdicionarGrupo").classList.remove("escondido");
+}
+
+function fecharModalAdicionarGrupo() {
+    document.getElementById("modalAdicionarGrupo").classList.add("escondido");
+
+    document.getElementById("novoGrupoNome").value = "";
+    document.getElementById("novoGrupoTema").value = "";
+    document.getElementById("novoGrupoLimite").value = "4";
+    document.getElementById("novoGrupoSenha").value = "";
+}
+
+async function adicionarGrupo() {
+    const nome = document.getElementById("novoGrupoNome").value;
+    const tema = document.getElementById("novoGrupoTema").value;
+    const limiteParticipantes = document.getElementById("novoGrupoLimite").value;
+    const senha = document.getElementById("novoGrupoSenha").value;
+
+    if (!tema || !limiteParticipantes) {
+        alert("Preencha pelo menos o tema e o limite de participantes.");
+        return;
+    }
+
+    const resposta = await fetch(`${API}/adicionar-grupo/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            trabalhoId: trabalhoId,
+            nome: nome,
+            tema: tema,
+            limiteParticipantes: limiteParticipantes,
+            senha: senha
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    alert(resultado.mensagem);
+
+    if (resultado.sucesso) {
+        fecharModalAdicionarGrupo();
+        await carregarDetalhesTrabalho();
+    }
+}
+
+async function excluirTrabalho() {
+    const confirmar = confirm(
+        "Tem certeza que deseja excluir este trabalho? Todos os grupos e alunos inscritos nele serão removidos."
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    const resposta = await fetch(`${API}/excluir-trabalho/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            trabalhoId: trabalhoId
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    alert(resultado.mensagem);
+
+    if (resultado.sucesso) {
+        window.location.href = "professor.html";
+    }
+}
