@@ -43,10 +43,14 @@ async function carregarTrabalhosAluno() {
                     }</p>
 
                     ${trabalho.usarSenha ? `
-                        <input type="password" id="senha-${trabalho.id}-${grupo.id}" placeholder="Senha do grupo">
+                        <input
+                            type="password"
+                            id="senha-${grupo.id}"
+                            placeholder="Senha do grupo"
+                        >
                     ` : ""}
 
-                    <button onclick="entrarGrupo(${trabalho.id}, ${grupo.id}, ${trabalho.usarSenha})">
+                    <button onclick="entrarGrupo(${grupo.id}, ${trabalho.usarSenha})">
                         Entrar neste grupo
                     </button>
                 </div>
@@ -57,11 +61,11 @@ async function carregarTrabalhosAluno() {
     });
 }
 
-async function entrarGrupo(trabalhoId, grupoId, usarSenha) {
+async function entrarGrupo(grupoId, usarSenha) {
     let senha = "";
 
     if (usarSenha) {
-        senha = document.getElementById(`senha-${trabalhoId}-${grupoId}`).value;
+        senha = document.getElementById(`senha-${grupoId}`).value;
     }
 
     const resposta = await fetch(`${API}/entrar-grupo/`, {
@@ -70,10 +74,9 @@ async function entrarGrupo(trabalhoId, grupoId, usarSenha) {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            trabalhoId,
-            grupoId,
-            aluno,
-            senha
+            alunoId: aluno.id,
+            grupoId: grupoId,
+            senha: senha
         })
     });
 
