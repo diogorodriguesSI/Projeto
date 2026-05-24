@@ -46,13 +46,13 @@ async function carregarTrabalhosAluno() {
         divMateria.innerHTML = `
             <button type="button" class="materia-header" onclick="alternarMateria(this)">
                 <div>
-                    <span class="seta">▶</span>
+                    <span class="seta">▼</span>
                     <strong>${materia}</strong>
                     <span class="badge">${materias[materia].length} trabalho(s)</span>
                 </div>
             </button>
 
-            <div class="materia-conteudo escondido">
+            <div class="materia-conteudo">
                 ${materias[materia].map(trabalho => montarTrabalhoHTML(trabalho)).join("")}
             </div>
         `;
@@ -62,48 +62,54 @@ async function carregarTrabalhosAluno() {
 }
 
 function montarTrabalhoHTML(trabalho) {
-    return `
-        <div style="border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; background: var(--bg-color);">
-            <div class="flex-between mb-3">
-                <div>
-                    <h3 style="font-size: 20px;">${trabalho.titulo}</h3>
-                    <p style="color: var(--text-muted); font-size: 14px;">Criado por: <strong>${trabalho.professor}</strong></p>
+    try {
+        return `
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; background: var(--bg-color);">
+                <div class="flex-between mb-3">
+                    <div>
+                        <h3 style="font-size: 20px;">${trabalho.titulo}</h3>
+                        <p style="color: var(--text-muted); font-size: 14px;">Criado por: <strong>${trabalho.professorNome}</strong></p>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="abrirDetalhes(${trabalho.id})">
+                        Ver Detalhes
+                    </button>
                 </div>
 
-                <button type="button" class="btn btn-primary" onclick="abrirDetalhes(${trabalho.id})">
-                    Ver Detalhes
-                </button>
+                <div class="info-grid">
+                    <div class="info-box">
+                        <span>Início</span>
+                        <strong>${formatarData(trabalho.dataInicio)}</strong>
+                    </div>
+
+                    <div class="info-box">
+                        <span>Término</span>
+                        <strong>${formatarData(trabalho.dataFim)}</strong>
+                    </div>
+
+                    <div class="info-box">
+                        <span>Grupos</span>
+                        <strong>${trabalho.grupos.length} disponível(is)</strong>
+                    </div>
+                </div>
+
+                <h4 class="mt-3 mb-3">Grupos disponíveis</h4>
+
+                <div class="grid-2">
+                    ${trabalho.grupos.map(grupo => montarGrupoHTML(trabalho, grupo)).join("")}
+                </div>
             </div>
-
-            <div class="info-grid">
-                <div class="info-box">
-                    <span>Início</span>
-                    <strong>${formatarData(trabalho.dataInicio)}</strong>
-                </div>
-
-                <div class="info-box">
-                    <span>Término</span>
-                    <strong>${formatarData(trabalho.dataFim)}</strong>
-                </div>
-
-                <div class="info-box">
-                    <span>Grupos</span>
-                    <strong>${trabalho.grupos.length} disponível(is)</strong>
-                </div>
-            </div>
-
-            <h4 class="mt-3 mb-3">Grupos disponíveis</h4>
-
-            <div class="grid-2">
-                ${trabalho.grupos.map(grupo => montarGrupoHTML(trabalho, grupo)).join("")}
-            </div>
-        </div>
-    `;
+        `;
+    } catch (e) {
+        console.error("Erro no montarTrabalhoHTML:", e);
+        return `<div class="empty-box">Erro ao carregar o trabalho: ${e.message}</div>`;
+    }
 }
 
 function montarGrupoHTML(trabalho, grupo) {
-    const ocupados = grupo.alunos.length;
-    const limite = grupo.limiteParticipantes;
+    try {
+        const ocupados = grupo.alunos.length;
+        const limite = grupo.limiteParticipantes;
     const livres = limite - ocupados;
     const lotado = livres <= 0;
 
@@ -188,9 +194,13 @@ function montarGrupoHTML(trabalho, grupo) {
                 }
             </p>
 
-            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) + montarMuralHTML(grupo) : ""}
+            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) + montarMuralHTML(grupo, 'main') : ""}
         </div>
     `;
+    } catch (e) {
+        console.error("Erro no montarGrupoHTML:", e);
+        return `<div class="empty-box">Erro ao carregar grupo: ${e.message}</div>`;
+    }
 }
 
 function montarAreaAlunoGrupo(grupo, alunoNoGrupo) {
@@ -240,20 +250,6 @@ function montarAreaAlunoGrupo(grupo, alunoNoGrupo) {
                 >${alunoNoGrupo.anotacaoAluno || ""}</textarea>
             </div>
 
-            <div class="form-group">
-                <label>Enviar arquivo</label>
-                <input
-                    type="file"
-                    id="arquivoAluno-${grupo.id}"
-                >
-            </div>
-
-            ${
-                alunoNoGrupo.arquivoUrl
-                ? `<p class="mb-3"><a href="http://127.0.0.1:8000${alunoNoGrupo.arquivoUrl}" target="_blank" style="color: var(--primary); font-weight: 600;">Ver arquivo enviado</a></p>`
-                : ""
-            }
-
             <button
                 type="button"
                 class="btn btn-primary"
@@ -278,12 +274,12 @@ function abrirDetalhes(trabalhoId) {
 
     document.getElementById("modalTitulo").innerText = trabalhoSelecionado.titulo;
     document.getElementById("modalMateria").innerText =
-        `${trabalhoSelecionado.materia} - ${trabalhoSelecionado.professor}`;
+        `${trabalhoSelecionado.materia} - ${trabalhoSelecionado.professorNome}`;
 
     document.getElementById("modalCorpo").innerHTML = `
         <div class="mb-3">
             <h3 style="font-size: 18px; margin-bottom: 8px;">Descrição</h3>
-            <p>Trabalho criado pelo professor <strong>${trabalhoSelecionado.professor}</strong>.</p>
+            <p>Trabalho criado pelo professor <strong>${trabalhoSelecionado.professorNome}</strong>.</p>
         </div>
 
         <div class="info-grid">
@@ -314,8 +310,9 @@ function abrirDetalhes(trabalhoId) {
 }
 
 function montarDetalheGrupoHTML(grupo) {
-    const ocupados = grupo.alunos.length;
-    const limite = grupo.limiteParticipantes;
+    try {
+        const ocupados = grupo.alunos.length;
+        const limite = grupo.limiteParticipantes;
     const livres = limite - ocupados;
     const lotado = livres <= 0;
 
@@ -387,9 +384,13 @@ function montarDetalheGrupoHTML(grupo) {
                 : "Nenhum aluno ainda"
             }</p>
 
-            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) + montarMuralHTML(grupo) : ""}
+            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) + montarMuralHTML(grupo, 'modal') : ""}
         </div>
     `;
+    } catch (e) {
+        console.error("Erro no montarDetalheGrupoHTML:", e);
+        return `<div class="empty-box">Erro ao carregar detalhes do grupo: ${e.message}</div>`;
+    }
 }
 
 function fecharDetalhes() {
@@ -538,7 +539,6 @@ async function sairGrupo(grupoId) {
 async function salvarMinhaParticipacao(grupoId) {
     const funcao = document.getElementById(`funcaoAluno-${grupoId}`).value;
     const anotacaoAluno = document.getElementById(`anotacaoAluno-${grupoId}`).value;
-    const arquivoInput = document.getElementById(`arquivoAluno-${grupoId}`);
 
     const formData = new FormData();
 
@@ -546,10 +546,6 @@ async function salvarMinhaParticipacao(grupoId) {
     formData.append("grupoId", grupoId);
     formData.append("funcao", funcao);
     formData.append("anotacaoAluno", anotacaoAluno);
-
-    if (arquivoInput.files.length > 0) {
-        formData.append("arquivo", arquivoInput.files[0]);
-    }
 
     const resposta = await fetch(`${API}/atualizar-minha-participacao/`, {
         method: "POST",
@@ -569,8 +565,42 @@ async function salvarMinhaParticipacao(grupoId) {
     }
 }
 
-async function enviarMensagemGrupo(grupoId) {
-    const input = document.getElementById(`input-mensagem-${grupoId}`);
+function montarMuralHTML(grupo, prefixo) {
+    const mensagensHTML = (grupo.mensagens || []).map(m => {
+        let classeBalao = "outra-mensagem";
+        if (Number(m.autorId) === Number(aluno.id)) {
+            classeBalao = "minha-mensagem";
+        } else if (m.autorTipo === "professor") {
+            classeBalao = "mensagem-professor";
+        }
+
+        return `
+            <div class="balao-mensagem ${classeBalao}">
+                <div class="balao-autor">${m.autorNome}</div>
+                <div class="balao-texto">${m.texto.replace(/\n/g, "<br>")}</div>
+                <div class="balao-data">${m.dataCriacao}</div>
+            </div>
+        `;
+    }).join("");
+
+    return `
+        <div class="mural-container mt-4">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: var(--card-bg);">
+                <h4 style="margin: 0;">Mural de Recados do Grupo</h4>
+            </div>
+            <div class="mural-mensagens" id="mural-mensagens-${prefixo}-${grupo.id}">
+                ${grupo.mensagens && grupo.mensagens.length > 0 ? mensagensHTML : '<div class="empty-box" style="margin: auto; border: none; background: transparent;">Nenhuma mensagem ainda.</div>'}
+            </div>
+            <div class="mural-input-area">
+                <input type="text" id="input-mensagem-${prefixo}-${grupo.id}" placeholder="Escreva uma mensagem para o grupo..." onkeypress="if(event.key === 'Enter') enviarMensagemGrupo(${grupo.id}, '${prefixo}')">
+                <button type="button" class="btn btn-primary" onclick="enviarMensagemGrupo(${grupo.id}, '${prefixo}')">Enviar</button>
+            </div>
+        </div>
+    `;
+}
+
+async function enviarMensagemGrupo(grupoId, prefixo = 'main') {
+    const input = document.getElementById(`input-mensagem-${prefixo}-${grupoId}`);
     const texto = input.value.trim();
 
     if (!texto) return;
@@ -597,7 +627,7 @@ async function enviarMensagemGrupo(grupoId) {
         }
         
         setTimeout(() => {
-            const container = document.getElementById(`mural-mensagens-${grupoId}`);
+            const container = document.getElementById(`mural-mensagens-${prefixo}-${grupoId}`);
             if (container) container.scrollTop = container.scrollHeight;
         }, 100);
     } else {

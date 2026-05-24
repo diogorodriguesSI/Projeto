@@ -26,7 +26,7 @@ async function carregarDetalhesTrabalho() {
         `${trabalho.materia} - ${trabalho.periodo}º Período`;
 
     document.getElementById("resumoMateria").innerText = trabalho.materia;
-    document.getElementById("resumoProfessor").innerText = trabalho.professor;
+    document.getElementById("resumoProfessor").innerText = trabalho.professorNome;
     document.getElementById("resumoPeriodo").innerText = `${trabalho.periodo}º`;
     document.getElementById("resumoInicio").innerText = formatarData(trabalho.dataInicio);
     document.getElementById("resumoFim").innerText = formatarData(trabalho.dataFim);
