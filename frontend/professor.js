@@ -8,50 +8,30 @@ document.getElementById("nomeProfessor").innerText = usuario.nome;
 
 const selectMateria = document.getElementById("materia");
 
-usuario.materias.forEach((materia, index) => {
+usuario.materias.forEach((materia) => {
     const option = document.createElement("option");
-    option.value = index;
+    option.value = materia.id;
     option.innerText = `${materia.nome} - ${materia.periodo}º Período`;
     selectMateria.appendChild(option);
 });
 
 async function criarTrabalho() {
-    const materiaSelecionada = usuario.materias[selectMateria.value];
-
-    const titulo = document.getElementById("titulo").value;
-    const dataInicio = document.getElementById("dataInicio").value;
-    const dataFim = document.getElementById("dataFim").value;
-    const quantidadeGrupos = document.getElementById("quantidadeGrupos").value;
-    const limiteParticipantes = document.getElementById("limiteParticipantes").value;
-    const usarSenha = document.getElementById("usarSenha").checked;
-    const senhaGrupo = document.getElementById("senhaGrupo").value;
-    const temasTexto = document.getElementById("temas").value;
-
     const mensagem = document.getElementById("mensagem");
 
-    if (!titulo || !dataInicio || !dataFim || !quantidadeGrupos || !limiteParticipantes) {
-        mensagem.innerText = "Preencha todos os campos obrigatórios.";
-        return;
-    }
-
-    const temas = temasTexto
-        .split("\n")
-        .map(t => t.trim())
-        .filter(t => t !== "");
-
     const dados = {
-        professorMatricula: usuario.matricula,
-        professorNome: usuario.nome,
-        materia: materiaSelecionada.nome,
-        periodo: materiaSelecionada.periodo,
-        titulo,
-        dataInicio,
-        dataFim,
-        quantidadeGrupos,
-        limiteParticipantes,
-        usarSenha,
-        senhaGrupo,
-        temas
+        professorId: usuario.id,
+        materiaId: document.getElementById("materia").value,
+        titulo: document.getElementById("titulo").value,
+        dataInicio: document.getElementById("dataInicio").value,
+        dataFim: document.getElementById("dataFim").value,
+        quantidadeGrupos: document.getElementById("quantidadeGrupos").value,
+        limiteParticipantes: document.getElementById("limiteParticipantes").value,
+        usarSenha: document.getElementById("usarSenha").checked,
+        senhaGrupo: document.getElementById("senhaGrupo").value,
+        temas: document.getElementById("temas").value
+            .split("\n")
+            .map(t => t.trim())
+            .filter(t => t !== "")
     };
 
     const resposta = await fetch(`${API}/criar-trabalho/`, {
@@ -64,13 +44,10 @@ async function criarTrabalho() {
 
     const resultado = await resposta.json();
 
+    mensagem.innerText = resultado.mensagem;
+
     if (resultado.sucesso) {
-        mensagem.innerText = "Trabalho criado com sucesso!";
-        document.getElementById("titulo").value = "";
-        document.getElementById("temas").value = "";
         carregarTrabalhos();
-    } else {
-        mensagem.innerText = resultado.mensagem;
     }
 }
 
@@ -81,7 +58,9 @@ async function carregarTrabalhos() {
     const lista = document.getElementById("listaTrabalhos");
     lista.innerHTML = "";
 
-    const meusTrabalhos = trabalhos.filter(t => t.professorMatricula === usuario.matricula);
+    const meusTrabalhos = trabalhos.filter(
+        t => t.professorId === usuario.id
+    );
 
     if (meusTrabalhos.length === 0) {
         lista.innerHTML = "<p>Nenhum trabalho criado ainda.</p>";
@@ -97,12 +76,14 @@ async function carregarTrabalhos() {
             <p><strong>Matéria:</strong> ${trabalho.materia}</p>
             <p><strong>Período:</strong> ${trabalho.periodo}º</p>
             <p><strong>Data:</strong> ${trabalho.dataInicio} até ${trabalho.dataFim}</p>
+
             <h4>Grupos</h4>
+
             ${trabalho.grupos.map(grupo => `
                 <div class="grupo">
                     <strong>${grupo.nome}</strong>
-                    <p>Tema: ${grupo.tema}</p>
-                    <p>Alunos: ${grupo.alunos.length}/${grupo.limiteParticipantes}</p>
+                    <p><strong>Tema:</strong> ${grupo.tema}</p>
+                    <p><strong>Alunos:</strong> ${grupo.alunos.length}/${grupo.limiteParticipantes}</p>
                 </div>
             `).join("")}
         `;
