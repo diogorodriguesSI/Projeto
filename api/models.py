@@ -123,34 +123,29 @@ class Trabalho(models.Model):
 # =========================
 class Grupo(models.Model):
 
-    # Trabalho do grupo
     trabalho = models.ForeignKey(
         Trabalho,
         on_delete=models.CASCADE,
         related_name="grupos"
     )
 
-    # Nome do grupo
-    nome = models.CharField(
-        max_length=50
-    )
+    nome = models.CharField(max_length=50)
 
-    # Tema do grupo
-    tema = models.CharField(
-        max_length=200
-    )
+    tema = models.CharField(max_length=200)
 
-    # Limite de participantes
     limite_participantes = models.IntegerField()
 
-    # Senha do grupo
     senha = models.CharField(
         max_length=100,
         blank=True,
         null=True
     )
 
-    # Lista de alunos do grupo
+    funcoes_disponiveis = models.TextField(
+        blank=True,
+        null=True
+    )
+
     alunos = models.ManyToManyField(
         Usuario,
         blank=True,
@@ -160,6 +155,47 @@ class Grupo(models.Model):
     def __str__(self):
         return f"{self.nome} - {self.trabalho.titulo}"
     
+class ParticipacaoGrupo(models.Model):
 
+    grupo = models.ForeignKey(
+        Grupo,
+        on_delete=models.CASCADE,
+        related_name="participacoes"
+    )
 
-    
+    aluno = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE
+    )
+
+    funcao = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    nota = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    observacao = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    anotacao_aluno = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    arquivo = models.FileField(
+        upload_to="arquivos_alunos/",
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return f"{self.aluno.nome} - {self.grupo.nome}"

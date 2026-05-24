@@ -1,5 +1,6 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from .models import Usuario, Materia, Trabalho, Grupo, ParticipacaoGrupo
 
 import json
 
@@ -241,22 +242,17 @@ def criar_trabalho(request):
 # =========================================
 def listar_trabalhos(request):
 
-    # Pega período enviado
     periodo = request.GET.get("periodo")
 
-    # Busca todos trabalhos
     trabalhos = Trabalho.objects.all()
 
-    # Filtra por período
     if periodo:
-
         trabalhos = trabalhos.filter(
             materia__periodo=periodo
         )
 
     lista = []
 
-    # Percorre todos trabalhos
     for trabalho in trabalhos:
 
         lista.append({
@@ -285,7 +281,6 @@ def listar_trabalhos(request):
 
             "usarSenha": trabalho.usar_senha,
 
-            # Lista grupos
             "grupos": [
 
                 {
@@ -296,10 +291,10 @@ def listar_trabalhos(request):
 
                     "tema": grupo.tema,
 
-                    "limiteParticipantes":
-                    grupo.limite_participantes,
+                    "limiteParticipantes": grupo.limite_participantes,
 
-                    # Lista alunos do grupo
+                    "funcoesDisponiveis": grupo.funcoes_disponiveis or "",
+
                     "alunos": [
 
                         {
@@ -308,24 +303,20 @@ def listar_trabalhos(request):
 
                             "nome": aluno.nome,
 
-                            "matricula":
-                            aluno.matricula
+                            "matricula": aluno.matricula
 
                         }
 
-                        for aluno
-                        in grupo.alunos.all()
+                        for aluno in grupo.alunos.all()
                     ]
 
                 }
 
-                for grupo
-                in trabalho.grupos.all()
+                for grupo in trabalho.grupos.all()
             ]
         })
 
     return resposta(lista)
-
 
 # =========================================
 # ENTRAR NO GRUPO
@@ -397,10 +388,10 @@ def entrar_grupo(request):
     # Adiciona aluno no grupo
     grupo.alunos.add(aluno)
 
-    return resposta({
-        "sucesso": True,
-        "mensagem": "Você entrou no grupo com sucesso"
-    })
+    ParticipacaoGrupo.objects.create(
+        grupo=grupo,
+        aluno=aluno
+)
 @csrf_exempt
 def sair_grupo(request):
 
@@ -415,16 +406,26 @@ def sair_grupo(request):
 
     dados = json.loads(request.body)
 
-    aluno = Usuario.objects.get(
-        id=dados.get("alunoId")
-    )
+    aluno_id = dados.get("alunoId")
+    grupo_id = dados.get("grupoId")
 
-    grupo = Grupo.objects.get(
-        id=dados.get("grupoId")
-    )
+    try:
+        aluno = Usuario.objects.get(id=aluno_id)
+        grupo = Grupo.objects.get(id=grupo_id)
+
+    except Usuario.DoesNotExist:
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Aluno não encontrado"
+        }, 404)
+
+    except Grupo.DoesNotExist:
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Grupo não encontrado"
+        }, 404)
 
     if not grupo.alunos.filter(id=aluno.id).exists():
-
         return resposta({
             "sucesso": False,
             "mensagem": "Você não está inscrito neste grupo"
@@ -432,7 +433,267 @@ def sair_grupo(request):
 
     grupo.alunos.remove(aluno)
 
+    ParticipacaoGrupo.objects.filter(
+        grupo=grupo,
+        aluno=aluno
+    ).delete()
+
     return resposta({
         "sucesso": True,
         "mensagem": "Você saiu do grupo com sucesso"
+    })
+
+@csrf_exempt
+def detalhes_trabalho(request, trabalho_id):
+
+    trabalho = Trabalho.objects.get(id=trabalho_id)
+
+    dados = {
+        "id": trabalho.id,
+        "titulo": trabalho.titulo,
+        "materia": trabalho.materia.nome,
+        "periodo": trabalho.materia.periodo,
+        "professor": trabalho.professor.nome,
+        "dataInicio": str(trabalho.data_inicio),
+        "dataFim": str(trabalho.data_fim),
+        "grupos": []
+    }
+
+    for grupo in trabalho.grupos.all():
+
+        participacoes = ParticipacaoGrupo.objects.filter(
+            grupo=grupo
+        )
+
+        dados["grupos"].append({
+            "id": grupo.id,
+            "nome": grupo.nome,
+            "tema": grupo.tema,
+            "limiteParticipantes": grupo.limite_participantes,
+            "funcoesDisponiveis": grupo.funcoes_disponiveis or "",
+            "alunos": [
+                    {
+                        "participacaoId": p.id,
+                        "id": p.aluno.id,
+                        "nome": p.aluno.nome,
+                        "matricula": p.aluno.matricula,
+                        "funcao": p.funcao or "",
+                        "nota": str(p.nota) if p.nota is not None else "",
+                        "observacao": p.observacao or "",
+                        "anotacaoAluno": p.anotacao_aluno or "",
+                        "arquivoUrl": p.arquivo.url if p.arquivo else "",
+                    }
+                    for p in participacoes
+                ]
+        })
+
+    return resposta(dados)
+
+
+@csrf_exempt
+def atualizar_participacao(request):
+
+    if request.method != "POST":
+        return resposta({"sucesso": False, "mensagem": "Use POST"}, 405)
+
+    dados = json.loads(request.body)
+
+    participacao = ParticipacaoGrupo.objects.get(
+        id=dados.get("participacaoId")
+    )
+
+    participacao.funcao = dados.get("funcao", "")
+    participacao.observacao = dados.get("observacao", "")
+
+    nota = dados.get("nota")
+
+    if nota == "" or nota is None:
+        participacao.nota = None
+    else:
+        participacao.nota = nota
+
+    participacao.save()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Dados atualizados com sucesso"
+    })
+
+
+@csrf_exempt
+def remover_aluno_grupo(request):
+
+    if request.method != "POST":
+        return resposta({"sucesso": False, "mensagem": "Use POST"}, 405)
+
+    dados = json.loads(request.body)
+
+    participacao = ParticipacaoGrupo.objects.get(
+        id=dados.get("participacaoId")
+    )
+
+    participacao.delete()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Aluno removido do grupo"
+    })
+
+@csrf_exempt
+def excluir_grupo(request):
+
+    if request.method == "OPTIONS":
+        return resposta({})
+
+    if request.method != "POST":
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Use POST"
+        }, 405)
+
+    dados = json.loads(request.body)
+
+    grupo_id = dados.get("grupoId")
+
+    try:
+        grupo = Grupo.objects.get(id=grupo_id)
+
+    except Grupo.DoesNotExist:
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Grupo não encontrado"
+        }, 404)
+
+    grupo.delete()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Grupo excluído com sucesso"
+    })
+
+@csrf_exempt
+def excluir_trabalho(request):
+
+    if request.method == "OPTIONS":
+        return resposta({})
+
+    if request.method != "POST":
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Use POST"
+        }, 405)
+
+    dados = json.loads(request.body)
+
+    try:
+        trabalho = Trabalho.objects.get(
+            id=dados.get("trabalhoId")
+        )
+
+    except Trabalho.DoesNotExist:
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Trabalho não encontrado"
+        }, 404)
+
+    trabalho.delete()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Trabalho excluído com sucesso"
+    })
+
+
+@csrf_exempt
+def adicionar_grupo(request):
+
+    if request.method == "OPTIONS":
+        return resposta({})
+
+    if request.method != "POST":
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Use POST"
+        }, 405)
+
+    dados = json.loads(request.body)
+
+    try:
+        trabalho = Trabalho.objects.get(
+            id=dados.get("trabalhoId")
+        )
+
+    except Trabalho.DoesNotExist:
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Trabalho não encontrado"
+        }, 404)
+
+    numero_grupo = trabalho.grupos.count() + 1
+
+    Grupo.objects.create(
+        trabalho=trabalho,
+        nome=dados.get("nome", f"Grupo {numero_grupo}"),
+        tema=dados.get("tema", f"Tema {numero_grupo}"),
+        limite_participantes=int(dados.get("limiteParticipantes", 4)),
+        senha=dados.get("senha", "")
+    )
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Grupo adicionado com sucesso"
+    })
+
+@csrf_exempt
+def atualizar_funcoes_grupo(request):
+
+    if request.method != "POST":
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Use POST"
+        }, 405)
+
+    dados = json.loads(request.body)
+
+    grupo = Grupo.objects.get(
+        id=dados.get("grupoId")
+    )
+
+    grupo.funcoes_disponiveis = dados.get("funcoes", "")
+    grupo.save()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Funções do grupo atualizadas com sucesso"
+    })
+
+
+@csrf_exempt
+def atualizar_minha_participacao(request):
+
+    if request.method != "POST":
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Use POST"
+        }, 405)
+
+    aluno_id = request.POST.get("alunoId")
+    grupo_id = request.POST.get("grupoId")
+
+    participacao = ParticipacaoGrupo.objects.get(
+        aluno_id=aluno_id,
+        grupo_id=grupo_id
+    )
+
+    participacao.funcao = request.POST.get("funcao", "")
+    participacao.anotacao_aluno = request.POST.get("anotacaoAluno", "")
+
+    if request.FILES.get("arquivo"):
+        participacao.arquivo = request.FILES.get("arquivo")
+
+    participacao.save()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Sua participação foi atualizada com sucesso"
     })

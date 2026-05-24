@@ -44,7 +44,7 @@ async function carregarTrabalhosAluno() {
         divMateria.className = "materia-box";
 
         divMateria.innerHTML = `
-            <button class="materia-header" onclick="alternarMateria(this)">
+            <button type="button" class="materia-header" onclick="alternarMateria(this)">
                 <div>
                     <span class="seta">▶</span>
                     <strong>${materia}</strong>
@@ -73,7 +73,7 @@ function montarTrabalhoHTML(trabalho) {
                     </p>
                 </div>
 
-                <button onclick="abrirDetalhes(${trabalho.id})">
+                <button type="button" onclick="abrirDetalhes(${trabalho.id})">
                     👁 Ver Detalhes
                 </button>
             </div>
@@ -110,9 +110,7 @@ function montarGrupoHTML(trabalho, grupo) {
     const livres = limite - ocupados;
     const lotado = livres <= 0;
 
-    const alunoEstaNesteGrupo = grupo.alunos.some(
-        a => a.id === aluno.id
-    );
+    const alunoEstaNesteGrupo = grupo.alunos.some(a => a.id === aluno.id);
 
     const alunoEstaEmOutroGrupoDoTrabalho = trabalho.grupos.some(
         g => g.alunos.some(a => a.id === aluno.id)
@@ -130,19 +128,24 @@ function montarGrupoHTML(trabalho, grupo) {
 
     if (alunoEstaNesteGrupo) {
         botao = `
-            <button class="btn-sair-grupo" onclick="sairGrupo(${grupo.id})">
+            <button
+                type="button"
+                class="btn-sair-grupo"
+                onclick="sairGrupo(${grupo.id})"
+            >
                 Sair deste grupo
             </button>
         `;
     } else if (alunoEstaEmOutroGrupoDoTrabalho) {
         botao = `
-            <button disabled>
-                Usuário inscrito em outro grupo deste trabalho.
+            <button type="button" disabled>
+                Já inscrito
             </button>
         `;
     } else {
         botao = `
             <button
+                type="button"
                 ${lotado ? "disabled" : ""}
                 onclick="abrirInscricao(${trabalho.id}, ${grupo.id})"
             >
@@ -159,6 +162,7 @@ function montarGrupoHTML(trabalho, grupo) {
 
                     <div class="grupo-tags">
                         ${trabalho.usarSenha ? `<span class="tag-lock">🔒 Protegido</span>` : ""}
+
                         <span class="${statusClasse}">
                             ${lotado ? "Cheio" : `${livres} vaga(s)`}
                         </span>
@@ -168,6 +172,8 @@ function montarGrupoHTML(trabalho, grupo) {
                                 Você está neste grupo
                             </span>
                         ` : ""}
+
+                        ${alunoEstaNesteGrupo ? montarAreaAlunoGrupo(grupo) : ""}
                     </div>
                 </div>
 
@@ -194,7 +200,6 @@ function alternarMateria(botao) {
     const seta = botao.querySelector(".seta");
 
     conteudo.classList.toggle("escondido");
-
     seta.innerText = conteudo.classList.contains("escondido") ? "▶" : "▼";
 }
 
@@ -221,6 +226,11 @@ function abrirDetalhes(trabalhoId) {
                 <span>Data Final</span>
                 <strong>${formatarData(trabalhoSelecionado.dataFim)}</strong>
             </div>
+
+            <div>
+                <span>Quantidade de Grupos</span>
+                <strong>${trabalhoSelecionado.grupos.length}</strong>
+            </div>
         </div>
 
         <h3>Grupos (${trabalhoSelecionado.grupos.length})</h3>
@@ -237,26 +247,70 @@ function montarDetalheGrupoHTML(grupo) {
     const livres = limite - ocupados;
     const lotado = livres <= 0;
 
+    const alunoEstaNesteGrupo = grupo.alunos.some(a => a.id === aluno.id);
+
+    const alunoEstaEmOutroGrupoDoTrabalho = trabalhoSelecionado.grupos.some(
+        g => g.alunos.some(a => a.id === aluno.id)
+    );
+
+    let botao = "";
+
+    if (alunoEstaNesteGrupo) {
+        botao = `
+            <button
+                type="button"
+                class="btn-sair-grupo"
+                onclick="sairGrupo(${grupo.id})"
+            >
+                Sair deste grupo
+            </button>
+        `;
+        
+    } else if (alunoEstaEmOutroGrupoDoTrabalho) {
+        botao = `
+            <button type="button" disabled>
+                Já inscrito
+            </button>
+        `;
+    } else {
+        botao = `
+            <button
+                type="button"
+                ${lotado ? "disabled" : ""}
+                onclick="abrirInscricao(${trabalhoSelecionado.id}, ${grupo.id})"
+            >
+                ${lotado ? "Lotado" : "Inscrever-se"}
+            </button>
+        `;
+    }
+
     return `
         <div class="detalhe-grupo">
             <div class="grupo-card-topo">
                 <div>
                     <h4>${grupo.nome}</h4>
+
                     <span class="${lotado ? "status-vermelho" : "status-verde"}">
                         ${lotado ? "Cheio" : `${livres} vaga(s)`}
                     </span>
+
+                    ${alunoEstaNesteGrupo ? `
+                        <span class="status-inscrito">
+                            Você está neste grupo
+                        </span>
+                    ` : ""}
                 </div>
 
-                <button
-                    ${lotado ? "disabled" : ""}
-                    onclick="abrirInscricao(${trabalhoSelecionado.id}, ${grupo.id})"
-                >
-                    ${lotado ? "Lotado" : "Inscrever-se"}
-                </button>
+                ${botao}
             </div>
 
             <p><strong>Tema:</strong> ${grupo.tema}</p>
             <p><strong>Participantes:</strong> ${ocupados}/${limite}</p>
+            <p><strong>Alunos:</strong> ${
+                grupo.alunos.length > 0
+                ? grupo.alunos.map(a => a.nome).join(", ")
+                : "Nenhum aluno ainda"
+            }</p>
         </div>
     `;
 }
@@ -268,6 +322,17 @@ function fecharDetalhes() {
 function abrirInscricao(trabalhoId, grupoId) {
     trabalhoSelecionado = todosTrabalhos.find(t => t.id === trabalhoId);
     grupoSelecionado = trabalhoSelecionado.grupos.find(g => g.id === grupoId);
+
+    const alunoJaInscrito = trabalhoSelecionado.grupos.find(
+        grupo => grupo.alunos.some(a => a.id === aluno.id)
+    );
+
+    if (alunoJaInscrito) {
+        alert(
+            `Você já está inscrito no grupo.\n\nGrupo atual: ${alunoJaInscrito.nome}\nTema: ${alunoJaInscrito.tema}`
+        );
+        return;
+    }
 
     document.getElementById("modalGrupoNome").innerText = grupoSelecionado.nome;
 
@@ -296,6 +361,7 @@ function abrirInscricao(trabalhoId, grupoId) {
 function fecharInscricao() {
     document.getElementById("modalInscricao").classList.add("escondido");
 }
+
 async function confirmarInscricao() {
     let senha = "";
 
@@ -321,29 +387,26 @@ async function confirmarInscricao() {
         alert(
             `${resultado.mensagem}\n\nGrupo atual: ${resultado.grupo.nome}\nTema: ${resultado.grupo.tema}`
         );
-    } else {
-        alert(resultado.mensagem);
+        return;
     }
+
+    alert(resultado.mensagem);
 
     if (resultado.sucesso) {
+        grupoSelecionado.alunos.push({
+            id: aluno.id,
+            nome: aluno.nome,
+            matricula: aluno.matricula
+        });
+
         fecharInscricao();
-        fecharDetalhes();
-        carregarTrabalhosAluno();
+
+        abrirDetalhes(trabalhoSelecionado.id);
     }
 }
 
-function formatarData(data) {
-    if (!data) return "";
-
-    const partes = data.split("-");
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
-carregarTrabalhosAluno();
 async function sairGrupo(grupoId) {
-    const confirmar = confirm(
-        "Tem certeza que deseja sair deste grupo?"
-    );
+    const confirmar = confirm("Tem certeza que deseja sair deste grupo?");
 
     if (!confirmar) {
         return;
@@ -365,6 +428,92 @@ async function sairGrupo(grupoId) {
     alert(resultado.mensagem);
 
     if (resultado.sucesso) {
-        carregarTrabalhosAluno();
+        trabalhoSelecionado.grupos.forEach(grupo => {
+            grupo.alunos = grupo.alunos.filter(
+                a => a.id !== aluno.id
+            );
+        });
+
+        abrirDetalhes(trabalhoSelecionado.id);
     }
+}
+
+function formatarData(data) {
+    if (!data) return "";
+
+    const partes = data.split("-");
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+carregarTrabalhosAluno();
+
+function montarAreaAlunoGrupo(grupo) {
+    const alunoNoGrupo = grupo.alunos.find(a => a.id === aluno.id);
+
+    const funcoes = grupo.funcoesDisponiveis
+        ? grupo.funcoesDisponiveis.split(",").map(f => f.trim()).filter(f => f !== "")
+        : [];
+
+    return `
+        <div class="area-participacao-aluno">
+            <h4>Minha participação</h4>
+
+            <label>Escolha sua função</label>
+            <select id="funcaoAluno-${grupo.id}">
+                <option value="">Selecione uma função</option>
+                ${funcoes.map(funcao => `
+                    <option value="${funcao}">
+                        ${funcao}
+                    </option>
+                `).join("")}
+            </select>
+
+            <label>Anotações</label>
+            <textarea
+                id="anotacaoAluno-${grupo.id}"
+                rows="3"
+                placeholder="Escreva suas anotações sobre sua parte..."
+            ></textarea>
+
+            <label>Enviar arquivo</label>
+            <input
+                type="file"
+                id="arquivoAluno-${grupo.id}"
+            >
+
+            <button
+                type="button"
+                class="btn-confirmar"
+                onclick="salvarMinhaParticipacao(${grupo.id})"
+            >
+                Salvar minha participação
+            </button>
+        </div>
+    `;
+}
+
+async function salvarMinhaParticipacao(grupoId) {
+    const funcao = document.getElementById(`funcaoAluno-${grupoId}`).value;
+    const anotacaoAluno = document.getElementById(`anotacaoAluno-${grupoId}`).value;
+    const arquivoInput = document.getElementById(`arquivoAluno-${grupoId}`);
+
+    const formData = new FormData();
+
+    formData.append("alunoId", aluno.id);
+    formData.append("grupoId", grupoId);
+    formData.append("funcao", funcao);
+    formData.append("anotacaoAluno", anotacaoAluno);
+
+    if (arquivoInput.files.length > 0) {
+        formData.append("arquivo", arquivoInput.files[0]);
+    }
+
+    const resposta = await fetch(`${API}/atualizar-minha-participacao/`, {
+        method: "POST",
+        body: formData
+    });
+
+    const resultado = await resposta.json();
+
+    alert(resultado.mensagem);
 }

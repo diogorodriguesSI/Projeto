@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes do Trabalho</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="detalhes-page">
+
+<header class="detalhes-header">
+    <div>
+        <h1 id="tituloTrabalho">Detalhes do Trabalho</h1>
+        <p id="infoTrabalho"></p>
+    </div>
+
+    <button type="button" class="btn-voltar" onclick="voltarProfessor()">
+        Voltar
+    </button>
+</header>
+
+<main class="detalhes-container">
+
+    <section class="detalhes-card resumo-card">
+        <h2>Resumo</h2>
+
+        <div class="resumo-grid">
+            <div>
+                <span>Matéria</span>
+                <strong id="resumoMateria"></strong>
+            </div>
+
+            <div>
+                <span>Professor</span>
+                <strong id="resumoProfessor"></strong>
+            </div>
+
+            <div>
+                <span>Período</span>
+                <strong id="resumoPeriodo"></strong>
+            </div>
+
+            <div>
+                <span>Data de Início</span>
+                <strong id="resumoInicio"></strong>
+            </div>
+
+            <div>
+                <span>Data Final</span>
+                <strong id="resumoFim"></strong>
+            </div>
+
+            <div>
+                <span>Total de Grupos</span>
+                <strong id="resumoGrupos"></strong>
+            </div>
+            <div class="acoes-trabalho">
+                <button type="button" class="btn-adicionar-grupo" onclick="abrirModalAdicionarGrupo()">
+                    + Adicionar Grupo
+                </button>
+
+                <button type="button" class="btn-excluir-trabalho" onclick="excluirTrabalho()">
+                    Excluir Trabalho
+                </button>
+            </div>
+</div>
+        </div>
+    </section>
+
+    <section class="detalhes-card">
+        <div class="section-top">
+            <div>
+                <h2>Grupos e Alunos</h2>
+                <p>Defina funções, notas e observações para cada aluno.</p>
+            </div>
+        </div>
+
+        <div id="listaGruposDetalhes"></div>
+    </section>
+
+</main>
+<div id="modalAdicionarGrupo" class="modal escondido">
+    <div class="modal-content pequeno">
+        <div class="modal-header azul">
+            <div>
+                <h2>Adicionar Grupo</h2>
+                <p>Crie um novo grupo para este trabalho</p>
+            </div>
+
+            <button type="button" class="btn-fechar-modal" onclick="fecharModalAdicionarGrupo()">
+                ✕
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <label>Nome do grupo</label>
+            <input type="text" id="novoGrupoNome" placeholder="Ex: Grupo 5">
+
+            <label>Tema do grupo</label>
+            <input type="text" id="novoGrupoTema" placeholder="Ex: Banco de Dados">
+
+            <label>Limite de participantes</label>
+            <input type="number" id="novoGrupoLimite" min="1" value="4">
+
+            <label>Senha do grupo</label>
+            <input type="text" id="novoGrupoSenha" placeholder="Opcional">
+
+            <div class="modal-actions">
+                <button type="button" class="btn-cancelar" onclick="fecharModalAdicionarGrupo()">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn-confirmar" onclick="adicionarGrupo()">
+                    Adicionar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script src="professor_detalhes.js"></script>
+</body>
+</html>

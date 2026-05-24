@@ -937,3 +937,367 @@ button:disabled {
     font-size: 12px;
     font-weight: 700;
 }
+
+.detalhes-page {
+    min-height: 100vh;
+    background: #f3f4f6;
+}
+
+.detalhes-header {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    color: white;
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detalhes-header h1 {
+    font-size: 30px;
+    margin-bottom: 6px;
+}
+
+.detalhes-header p {
+    color: #dbeafe;
+}
+
+.btn-voltar {
+    border: none;
+    background: white;
+    color: #1d4ed8;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-voltar:hover {
+    background: #dbeafe;
+}
+
+.detalhes-container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+.detalhes-card {
+    background: white;
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.detalhes-card h2 {
+    font-size: 26px;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.section-top p {
+    color: #6b7280;
+}
+
+.resumo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 22px;
+}
+
+.resumo-grid div {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.resumo-grid span {
+    display: block;
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.resumo-grid strong {
+    color: #111827;
+    font-size: 17px;
+}
+
+.detalhe-grupo-prof {
+    border: 1px solid #d1d5db;
+    border-radius: 16px;
+    padding: 24px;
+    margin-top: 22px;
+    background: #ffffff;
+}
+
+.detalhe-grupo-prof-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.detalhe-grupo-prof-header h3 {
+    font-size: 24px;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.detalhe-grupo-prof-header p {
+    color: #4b5563;
+}
+
+.grupo-contador {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.tabela-alunos {
+    display: grid;
+    gap: 18px;
+}
+
+.aluno-detalhe-card {
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.aluno-identidade {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.avatar-aluno {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.aluno-identidade h4 {
+    font-size: 19px;
+    color: #111827;
+}
+
+.aluno-identidade p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.aluno-campos {
+    display: grid;
+    grid-template-columns: 1.5fr 0.7fr 2fr;
+    gap: 16px;
+}
+
+.aluno-campos label {
+    display: block;
+    font-weight: 700;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.aluno-campos input,
+.aluno-campos textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    outline: none;
+    font-size: 15px;
+    background: white;
+}
+
+.aluno-campos input:focus,
+.aluno-campos textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.aluno-acoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.btn-salvar-aluno {
+    background: #16a34a;
+    color: white;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-salvar-aluno:hover {
+    background: #15803d;
+}
+
+.btn-remover-aluno {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 11px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-remover-aluno:hover {
+    background: #991b1b;
+}
+
+@media (max-width: 800px) {
+    .detalhes-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+
+    .resumo-grid,
+    .aluno-campos {
+        grid-template-columns: 1fr;
+    }
+
+    .detalhe-grupo-prof-header,
+    .aluno-acoes {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.grupo-acoes-topo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-excluir-grupo {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-excluir-grupo:hover {
+    background: #991b1b;
+}
+.acoes-trabalho {
+    display: flex;
+    gap: 14px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.btn-adicionar-grupo {
+    background: #16a34a;
+    color: white;
+    border: none;
+    padding: 13px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-adicionar-grupo:hover {
+    background: #15803d;
+}
+
+.btn-excluir-trabalho {
+    background: #dc2626;
+    color: white;
+    border: none;
+    padding: 13px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-excluir-trabalho:hover {
+    background: #991b1b;
+}
+
+.funcoes-box {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    border-radius: 12px;
+    margin: 18px 0;
+}
+
+.funcoes-box label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.funcoes-box textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+.aluno-entrega {
+    background: white;
+    border: 1px solid #dbeafe;
+    padding: 14px;
+    border-radius: 12px;
+    margin-top: 16px;
+}
+
+.aluno-entrega a {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.area-participacao-aluno {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 16px;
+}
+
+.area-participacao-aluno h4 {
+    margin-bottom: 12px;
+    color: #1d4ed8;
+}
+
+.area-participacao-aluno label {
+    display: block;
+    font-weight: 700;
+    margin: 10px 0 6px;
+}
+
+.area-participacao-aluno select,
+.area-participacao-aluno textarea,
+.area-participacao-aluno input {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #bfdbfe;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
