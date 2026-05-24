@@ -2,25 +2,26 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>GroupFlow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroupFlow - Login</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-page">
 
-    <main class="login-container">
+    <main class="login-wrapper">
 
         <div class="login-logo">
             <h1>GroupFlow</h1>
-            <p>Equipes de Trabalhos</p>
+            <p>Gerenciamento de Equipes de Trabalho</p>
         </div>
 
         <section class="login-card">
 
             <h2>Acesso ao Sistema</h2>
 
-            <label for="matricula">Matrícula</label>
-            <div class="input-area">
-                <span>👤</span>
+            <div class="form-group">
+                <label for="matricula">Matrícula</label>
+                <span class="input-icon">👤</span>
                 <input
                     type="text"
                     id="matricula"
@@ -28,9 +29,9 @@
                 >
             </div>
 
-            <label for="senha">Senha</label>
-            <div class="input-area">
-                <span>🔒</span>
+            <div class="form-group">
+                <label for="senha">Senha</label>
+                <span class="input-icon">🔒</span>
                 <input
                     type="password"
                     id="senha"
@@ -38,15 +39,15 @@
                 >
             </div>
 
-            <button onclick="fazerLogin()">
-                ↪ Entrar
+            <button class="btn btn-primary" style="width: 100%; margin-top: 8px;" onclick="fazerLogin()">
+                Entrar
             </button>
 
             <p id="mensagem"></p>
 
         </section>
 
-        <footer>
+        <footer class="login-footer">
             © 2026 GroupFlow. Todos os direitos reservados.
         </footer>
 
@@ -55,4 +56,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-

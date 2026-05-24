@@ -66,41 +66,46 @@ function renderizarGrupos() {
 
     gruposVisuais.forEach((grupo, index) => {
         const div = document.createElement("div");
-        div.className = "grupo-form";
+        div.className = "grupo-form-box";
 
         div.innerHTML = `
-            <div class="grupo-form-header">
+            <div class="flex-between mb-3">
                 <input
                     type="text"
                     value="${grupo.nome}"
                     onchange="atualizarGrupo(${index}, 'nome', this.value)"
                     placeholder="Nome do grupo"
+                    style="font-size: 18px; font-weight: 700; background: transparent; border: none; padding: 0; outline: none; border-bottom: 2px solid var(--border-color); border-radius: 0;"
                 >
 
-                <button type="button" onclick="removerGrupoVisual(${index})">
+                <button type="button" class="btn-icon" onclick="removerGrupoVisual(${index})">
                     ✕
                 </button>
             </div>
 
-            <label>Número de participantes</label>
-            <input
-                type="number"
-                min="1"
-                value="${grupo.limite}"
-                onchange="atualizarGrupo(${index}, 'limite', this.value)"
-            >
+            <div class="form-group">
+                <label>Número de participantes</label>
+                <input
+                    type="number"
+                    min="1"
+                    value="${grupo.limite}"
+                    onchange="atualizarGrupo(${index}, 'limite', this.value)"
+                >
+            </div>
 
-            <label>Tema do grupo</label>
-            <input
-                type="text"
-                value="${grupo.tema}"
-                onchange="atualizarGrupo(${index}, 'tema', this.value)"
-                placeholder="Ex: Banco de Dados"
-            >
+            <div class="form-group">
+                <label>Tema do grupo</label>
+                <input
+                    type="text"
+                    value="${grupo.tema}"
+                    onchange="atualizarGrupo(${index}, 'tema', this.value)"
+                    placeholder="Ex: Banco de Dados"
+                >
+            </div>
 
             <label>Funções disponíveis para este grupo</label>
 
-            <div class="funcoes-box">
+            <div class="flex-column mb-3">
                 ${grupo.funcoes.map((funcao, i) => `
                     <div class="linha-funcao">
                         <input
@@ -112,7 +117,7 @@ function renderizarGrupos() {
 
                         <button
                             type="button"
-                            class="btn-remover"
+                            class="btn btn-danger"
                             onclick="removerFuncaoGrupo(${index}, ${i})"
                         >
                             Remover
@@ -122,7 +127,7 @@ function renderizarGrupos() {
 
                 <button
                     type="button"
-                    class="btn-secundario"
+                    class="btn btn-secondary mt-3"
                     onclick="adicionarFuncaoGrupo(${index})"
                 >
                     + Adicionar função
@@ -236,25 +241,36 @@ async function carregarTrabalhos() {
 
     meusTrabalhos.forEach(trabalho => {
         const div = document.createElement("div");
-        div.className = "trabalho-card";
+        div.className = "card";
 
         div.innerHTML = `
-            <div class="trabalho-header">
+            <div class="flex-between mb-3">
                 <div>
-                    <h3>${trabalho.titulo}</h3>
-                    <p><strong>Matéria:</strong> ${trabalho.materia}</p>
-                    <p><strong>Período:</strong> ${trabalho.periodo}º Período</p>
+                    <h3 style="font-size: 20px; color: var(--text-main); margin-bottom: 4px;">${trabalho.titulo}</h3>
+                    <div class="tags-container">
+                        <span class="badge badge-primary">${trabalho.materia}</span>
+                        <span class="badge badge-warning">${trabalho.periodo}º Período</span>
+                    </div>
                 </div>
 
-                <button type="button" onclick="abrirPaginaDetalhes(${trabalho.id})">
+                <button type="button" class="btn btn-outline" onclick="abrirPaginaDetalhes(${trabalho.id})">
                     Analisar
                 </button>
             </div>
 
-            <div class="trabalho-info">
-                <p><strong>Data de início:</strong><br>${formatarData(trabalho.dataInicio)}</p>
-                <p><strong>Data final:</strong><br>${formatarData(trabalho.dataFim)}</p>
-                <p><strong>Grupos:</strong><br>${trabalho.grupos.length} grupo(s)</p>
+            <div class="info-grid">
+                <div class="info-box">
+                    <span>Início</span>
+                    <strong>${formatarData(trabalho.dataInicio)}</strong>
+                </div>
+                <div class="info-box">
+                    <span>Final</span>
+                    <strong>${formatarData(trabalho.dataFim)}</strong>
+                </div>
+                <div class="info-box">
+                    <span>Grupos</span>
+                    <strong>${trabalho.grupos.length} grupo(s)</strong>
+                </div>
             </div>
         `;
 

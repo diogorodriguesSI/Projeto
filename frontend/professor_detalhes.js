@@ -50,44 +50,56 @@ function renderizarGruposDetalhes() {
 
     trabalhoAtual.grupos.forEach(grupo => {
         const div = document.createElement("div");
-        div.className = "detalhe-grupo-prof";
+        div.className = "card";
 
         div.innerHTML = `
-            <div class="detalhe-grupo-prof-header">
+            <div class="flex-between mb-3">
                 <div>
-                    <h3>${grupo.nome}</h3>
+                    <h3 style="font-size: 20px; color: var(--text-main); margin-bottom: 4px;">${grupo.nome}</h3>
                     <p><strong>Tema:</strong> ${grupo.tema}</p>
                 </div>
+                
+                <div class="flex-start" style="align-items: center;">
+                    <span class="badge badge-primary">
+                        ${grupo.alunos.length}/${grupo.limiteParticipantes} alunos
+                    </span>
+                    <button
+                        type="button"
+                        class="btn btn-danger"
+                        onclick="excluirGrupo(${grupo.id})"
+                    >
+                        Excluir grupo
+                    </button>
+                </div>
+            </div>
 
-                <div class="funcoes-box">
-                    <label>Funções disponíveis para os alunos</label>
+            <div class="form-group" style="background: var(--bg-color); padding: 16px; border-radius: var(--radius-md);">
+                <label class="mb-3">Funções disponíveis para os alunos</label>
+                
+                <div id="lista-funcoes-${grupo.id}" class="flex-column mb-3">
+                    ${(grupo.funcoesDisponiveis ? grupo.funcoesDisponiveis.split('\n').filter(f => f.trim() !== '') : []).map(funcao => `
+                        <div class="linha-funcao">
+                            <input type="text" class="funcao-input-${grupo.id}" value="${funcao.trim()}" placeholder="Nome da função">
+                            <button type="button" class="btn btn-danger btn-icon" onclick="this.parentElement.remove()">✕</button>
+                        </div>
+                    `).join('')}
+                </div>
 
-                    <textarea
-                        id="funcoes-${grupo.id}"
-                        rows="3"
-                        placeholder="Ex: Pesquisa, Slides, Apresentação, Relatório"
-                    >${grupo.funcoesDisponiveis || ""}</textarea>
+                <div class="flex-start mt-3">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        onclick="adicionarFuncaoDetalhe(${grupo.id})"
+                    >
+                        + Adicionar função
+                    </button>
 
                     <button
                         type="button"
-                        class="btn-salvar-aluno"
+                        class="btn btn-success"
                         onclick="salvarFuncoesGrupo(${grupo.id})"
                     >
                         Salvar funções
-                    </button>
-                </div>
-
-                <div class="grupo-acoes-topo">
-                <div class="grupo-contador">
-                ${grupo.alunos.length}/${grupo.limiteParticipantes} alunos
-                </div>
-
-                    <button
-                        type="button"
-                        class="btn-excluir-grupo"
-                        onclick="excluirGrupo(${grupo.id})"
-                        >
-                            Excluir grupo
                     </button>
                 </div>
             </div>
@@ -95,12 +107,12 @@ function renderizarGruposDetalhes() {
             ${
                 grupo.alunos.length === 0
                 ? `
-                    <div class="empty-box">
+                    <div class="empty-box mt-3">
                         Nenhum aluno inscrito neste grupo.
                     </div>
                 `
                 : `
-                    <div class="tabela-alunos">
+                    <div class="flex-column mt-3">
                         ${grupo.alunos.map(aluno => montarAlunoHTML(aluno)).join("")}
                     </div>
                 `
@@ -110,8 +122,21 @@ function renderizarGruposDetalhes() {
         lista.appendChild(div);
     });
 }
+function adicionarFuncaoDetalhe(grupoId) {
+    const container = document.getElementById(`lista-funcoes-${grupoId}`);
+    const div = document.createElement('div');
+    div.className = 'linha-funcao';
+    div.innerHTML = `
+        <input type="text" class="funcao-input-${grupoId}" placeholder="Nome da função">
+        <button type="button" class="btn btn-danger btn-icon" onclick="this.parentElement.remove()">✕</button>
+    `;
+    container.appendChild(div);
+}
+
 async function salvarFuncoesGrupo(grupoId) {
-    const funcoes = document.getElementById(`funcoes-${grupoId}`).value;
+    const inputs = document.querySelectorAll(`.funcao-input-${grupoId}`);
+    const funcoesArray = Array.from(inputs).map(input => input.value.trim()).filter(v => v !== "");
+    const funcoes = funcoesArray.join('\n');
 
     const resposta = await fetch(`${API}/atualizar-funcoes-grupo/`, {
         method: "POST",
@@ -136,32 +161,32 @@ async function salvarFuncoesGrupo(grupoId) {
 
 function montarAlunoHTML(alunoGrupo) {
     return `
-        <div class="aluno-detalhe-card">
+        <div class="aluno-list-card">
 
-            <div class="aluno-identidade">
-                <div class="avatar-aluno">
+            <div class="flex-start mb-3" style="align-items: center;">
+                <div class="avatar-badge">
                     ${pegarIniciais(alunoGrupo.nome)}
                 </div>
 
                 <div>
-                    <h4>${alunoGrupo.nome}</h4>
-                    <p>Matrícula: ${alunoGrupo.matricula}</p>
+                    <h4 style="font-size: 18px; color: var(--text-main); margin-bottom: 2px;">${alunoGrupo.nome}</h4>
+                    <p style="font-size: 14px;">Matrícula: ${alunoGrupo.matricula}</p>
                 </div>
             </div>
 
-            <div class="aluno-campos">
+            <div class="grid-3">
 
-                <div>
+                <div class="form-group">
                     <label>Função no grupo</label>
                     <input
                         type="text"
                         id="funcao-${alunoGrupo.participacaoId}"
                         value="${alunoGrupo.funcao || ""}"
-                        placeholder="Ex: Líder, Pesquisa, Slides..."
+                        placeholder="Ex: Líder, Pesquisa..."
                     >
                 </div>
 
-                <div>
+                <div class="form-group">
                     <label>Nota</label>
                     <input
                         type="number"
@@ -174,21 +199,21 @@ function montarAlunoHTML(alunoGrupo) {
                     >
                 </div>
 
-                <div class="campo-observacao">
+                <div class="form-group">
                     <label>Observação</label>
                     <textarea
                         id="observacao-${alunoGrupo.participacaoId}"
-                        rows="3"
-                        placeholder="Observações sobre participação..."
+                        rows="2"
+                        placeholder="Observações..."
                     >${alunoGrupo.observacao || ""}</textarea>
                 </div>
 
             </div>
 
-            <div class="aluno-acoes">
+            <div class="flex-start" style="justify-content: flex-end;">
                 <button
                     type="button"
-                    class="btn-salvar-aluno"
+                    class="btn btn-success"
                     onclick="salvarParticipacao(${alunoGrupo.participacaoId})"
                 >
                     Salvar
@@ -196,7 +221,7 @@ function montarAlunoHTML(alunoGrupo) {
 
                 <button
                     type="button"
-                    class="btn-remover-aluno"
+                    class="btn btn-danger"
                     onclick="removerAlunoGrupo(${alunoGrupo.participacaoId})"
                 >
                     Remover aluno
