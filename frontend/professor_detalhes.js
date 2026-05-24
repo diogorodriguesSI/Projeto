@@ -117,6 +117,8 @@ function renderizarGruposDetalhes() {
                     </div>
                 `
             }
+
+            ${montarMuralHTML(grupo)}
         `;
 
         lista.appendChild(div);
@@ -409,4 +411,71 @@ async function excluirTrabalho() {
             }
         }
     );
+}
+
+function montarMuralHTML(grupo) {
+    const mensagensHTML = (grupo.mensagens || []).map(m => {
+        let classeBalao = "outra-mensagem";
+        if (Number(m.autorId) === Number(usuario.id)) {
+            classeBalao = "minha-mensagem";
+        } else if (m.autorTipo === "professor") {
+            classeBalao = "mensagem-professor";
+        }
+
+        return `
+            <div class="balao-mensagem ${classeBalao}">
+                <div class="balao-autor">${m.autorNome}</div>
+                <div class="balao-texto">${m.texto.replace(/\n/g, "<br>")}</div>
+                <div class="balao-data">${m.dataCriacao}</div>
+            </div>
+        `;
+    }).join("");
+
+    return `
+        <div class="mural-container mt-4">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: var(--card-bg);">
+                <h4 style="margin: 0;">Mural de Recados do Grupo</h4>
+            </div>
+            <div class="mural-mensagens" id="mural-mensagens-${grupo.id}">
+                ${grupo.mensagens && grupo.mensagens.length > 0 ? mensagensHTML : '<div class="empty-box" style="margin: auto; border: none; background: transparent;">Nenhuma mensagem ainda.</div>'}
+            </div>
+            <div class="mural-input-area">
+                <input type="text" id="input-mensagem-${grupo.id}" placeholder="Escreva uma mensagem para o grupo..." onkeypress="if(event.key === 'Enter') enviarMensagemGrupo(${grupo.id})">
+                <button type="button" class="btn btn-primary" onclick="enviarMensagemGrupo(${grupo.id})">Enviar</button>
+            </div>
+        </div>
+    `;
+}
+
+async function enviarMensagemGrupo(grupoId) {
+    const input = document.getElementById(`input-mensagem-${grupoId}`);
+    const texto = input.value.trim();
+
+    if (!texto) return;
+
+    const resposta = await fetch(`${API}/adicionar-mensagem-grupo/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            grupoId: grupoId,
+            autorId: usuario.id,
+            texto: texto
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    if (resultado.sucesso) {
+        input.value = "";
+        await carregarDetalhesTrabalho();
+        
+        setTimeout(() => {
+            const container = document.getElementById(`mural-mensagens-${grupoId}`);
+            if (container) container.scrollTop = container.scrollHeight;
+        }, 100);
+    } else {
+        mostrarAlerta(resultado.mensagem, 'error');
+    }
 }

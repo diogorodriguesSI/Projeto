@@ -199,3 +199,28 @@ class ParticipacaoGrupo(models.Model):
 
     def __str__(self):
         return f"{self.aluno.nome} - {self.grupo.nome}"
+
+
+# =========================
+# TABELA DE MENSAGENS (MURAL)
+# =========================
+class MensagemGrupo(models.Model):
+    grupo = models.ForeignKey(
+        Grupo,
+        on_delete=models.CASCADE,
+        related_name="mensagens"
+    )
+
+    autor = models.ForeignKey(
+        Usuario,
+        on_delete=models.CASCADE
+    )
+
+    texto = models.TextField()
+
+    data_criacao = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.autor.nome}: {self.texto[:20]}"

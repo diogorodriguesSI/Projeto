@@ -15,6 +15,7 @@ from .views import (
     atualizar_funcoes_grupo,
     atualizar_minha_participacao,
     lancar_nota,
+    adicionar_mensagem_grupo,
 )
 
 urlpatterns = [
@@ -39,4 +40,6 @@ urlpatterns = [
     path("lancar-nota/", lancar_nota),
 
     path("excluir-trabalho/", excluir_trabalho),
+
+    path("adicionar-mensagem-grupo/", adicionar_mensagem_grupo),
 ]

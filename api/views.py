@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Usuario, Materia, Trabalho, Grupo, ParticipacaoGrupo
+from .models import Usuario, Materia, Trabalho, Grupo, ParticipacaoGrupo, MensagemGrupo
 import json
 
 
@@ -49,16 +49,30 @@ def participacao_json(p):
     }
 
 
+def mensagem_json(m):
+    return {
+        "id": m.id,
+        "autorId": m.autor.id,
+        "autorNome": m.autor.nome,
+        "autorTipo": m.autor.tipo,
+        "texto": m.texto,
+        "dataCriacao": m.data_criacao.strftime("%d/%m/%Y %H:%M"),
+    }
+
+
 def grupo_json(grupo):
     participacoes = ParticipacaoGrupo.objects.filter(grupo=grupo)
+    mensagens = MensagemGrupo.objects.filter(grupo=grupo).order_by("data_criacao")
 
     return {
         "id": grupo.id,
         "nome": grupo.nome,
         "tema": grupo.tema,
         "limiteParticipantes": grupo.limite_participantes,
+        "protegido": bool(grupo.senha),
         "funcoesDisponiveis": grupo.funcoes_disponiveis or "",
         "alunos": [participacao_json(p) for p in participacoes],
+        "mensagens": [mensagem_json(m) for m in mensagens],
     }
 
 
@@ -571,4 +585,39 @@ def atualizar_minha_participacao(request):
     return resposta({
         "sucesso": True,
         "mensagem": "Participação salva com sucesso"
+    })
+
+
+@csrf_exempt
+def adicionar_mensagem_grupo(request):
+    if request.method == "OPTIONS":
+        return resposta({})
+
+    if request.method != "POST":
+        return resposta({"sucesso": False, "mensagem": "Use POST"}, 405)
+
+    dados = json.loads(request.body)
+
+    grupo_id = dados.get("grupoId")
+    autor_id = dados.get("autorId")
+    texto = dados.get("texto")
+
+    if not texto or not str(texto).strip():
+        return resposta({"sucesso": False, "mensagem": "Mensagem vazia"}, 400)
+
+    try:
+        grupo = Grupo.objects.get(id=grupo_id)
+        autor = Usuario.objects.get(id=autor_id)
+    except (Grupo.DoesNotExist, Usuario.DoesNotExist):
+        return resposta({"sucesso": False, "mensagem": "Grupo ou usuário não encontrado"}, 404)
+
+    MensagemGrupo.objects.create(
+        grupo=grupo,
+        autor=autor,
+        texto=str(texto).strip()
+    )
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Mensagem enviada com sucesso"
     })

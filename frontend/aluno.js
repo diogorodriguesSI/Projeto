@@ -127,7 +127,7 @@ function montarGrupoHTML(trabalho, grupo) {
         botao = `
             <button
                 type="button"
-                class="btn-sair-grupo"
+                class="btn btn-danger"
                 onclick="sairGrupo(${grupo.id})"
             >
                 Sair deste grupo
@@ -135,7 +135,7 @@ function montarGrupoHTML(trabalho, grupo) {
         `;
     } else if (alunoEstaEmOutroGrupoDoTrabalho) {
         botao = `
-            <button type="button" disabled>
+            <button type="button" class="btn btn-outline" disabled>
                 Já inscrito
             </button>
         `;
@@ -143,10 +143,11 @@ function montarGrupoHTML(trabalho, grupo) {
         botao = `
             <button
                 type="button"
+                class="btn ${lotado ? 'btn-secondary' : 'btn-primary'}"
                 ${lotado ? "disabled" : ""}
                 onclick="abrirInscricao(${trabalho.id}, ${grupo.id})"
             >
-                ${lotado ? "Lotado" : "Inscrever"}
+                ${lotado ? "Lotado" : "Inscrever-se"}
             </button>
         `;
     }
@@ -158,7 +159,7 @@ function montarGrupoHTML(trabalho, grupo) {
                     <h5 style="font-size: 18px; margin-bottom: 8px;">${grupo.nome}</h5>
 
                     <div class="tags-container">
-                        ${trabalho.usarSenha ? `<span class="badge badge-warning">🔒 Protegido</span>` : ""}
+                        ${grupo.protegido ? `<span class="badge badge-warning">🔒 Protegido</span>` : ""}
 
                         <span class="badge badge-${lotado ? 'danger' : 'success'}">
                             ${lotado ? "Cheio" : `${livres} vaga(s)`}
@@ -187,7 +188,7 @@ function montarGrupoHTML(trabalho, grupo) {
                 }
             </p>
 
-            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) : ""}
+            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) + montarMuralHTML(grupo) : ""}
         </div>
     `;
 }
@@ -330,7 +331,7 @@ function montarDetalheGrupoHTML(grupo) {
         botao = `
             <button
                 type="button"
-                class="btn-sair-grupo"
+                class="btn btn-danger"
                 onclick="sairGrupo(${grupo.id})"
             >
                 Sair deste grupo
@@ -338,7 +339,7 @@ function montarDetalheGrupoHTML(grupo) {
         `;
     } else if (alunoEstaEmOutroGrupoDoTrabalho) {
         botao = `
-            <button type="button" disabled>
+            <button type="button" class="btn btn-outline" disabled>
                 Já inscrito
             </button>
         `;
@@ -346,6 +347,7 @@ function montarDetalheGrupoHTML(grupo) {
         botao = `
             <button
                 type="button"
+                class="btn ${lotado ? 'btn-secondary' : 'btn-primary'}"
                 ${lotado ? "disabled" : ""}
                 onclick="abrirInscricao(${trabalhoSelecionado.id}, ${grupo.id})"
             >
@@ -359,6 +361,8 @@ function montarDetalheGrupoHTML(grupo) {
             <div class="flex-between mb-3" style="align-items: flex-start;">
                 <div>
                     <h4 style="font-size: 18px;">${grupo.nome}</h4>
+                    
+                    ${grupo.protegido ? `<span class="badge badge-warning mt-3">🔒 Protegido</span>` : ""}
 
                     <span class="badge badge-${lotado ? 'danger' : 'success'} mt-3">
                         ${lotado ? "Cheio" : `${livres} vaga(s)`}
@@ -383,7 +387,7 @@ function montarDetalheGrupoHTML(grupo) {
                 : "Nenhum aluno ainda"
             }</p>
 
-            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) : ""}
+            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) + montarMuralHTML(grupo) : ""}
         </div>
     `;
 }
@@ -426,7 +430,7 @@ function abrirInscricao(trabalhoId, grupoId) {
         </select>
     `;
 
-    if (trabalhoSelecionado.usarSenha) {
+    if (grupoSelecionado.protegido) {
         document.getElementById("campoSenhaGrupo").innerHTML = `
             <label>🔒 Senha do Grupo</label>
             <input
@@ -455,7 +459,7 @@ function fecharInscricao() {
 async function confirmarInscricao() {
     let senha = "";
 
-    if (trabalhoSelecionado.usarSenha) {
+    if (grupoSelecionado.protegido) {
         senha = document.getElementById("senhaGrupoAluno").value;
     }
 
@@ -562,6 +566,42 @@ async function salvarMinhaParticipacao(grupoId) {
         if (trabalhoSelecionado) {
             abrirDetalhes(trabalhoSelecionado.id);
         }
+    }
+}
+
+async function enviarMensagemGrupo(grupoId) {
+    const input = document.getElementById(`input-mensagem-${grupoId}`);
+    const texto = input.value.trim();
+
+    if (!texto) return;
+
+    const resposta = await fetch(`${API}/adicionar-mensagem-grupo/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            grupoId: grupoId,
+            autorId: aluno.id,
+            texto: texto
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    if (resultado.sucesso) {
+        input.value = "";
+        await carregarTrabalhosAluno();
+        if (trabalhoSelecionado) {
+            abrirDetalhes(trabalhoSelecionado.id);
+        }
+        
+        setTimeout(() => {
+            const container = document.getElementById(`mural-mensagens-${grupoId}`);
+            if (container) container.scrollTop = container.scrollHeight;
+        }, 100);
+    } else {
+        mostrarAlerta(resultado.mensagem, 'error');
     }
 }
 
