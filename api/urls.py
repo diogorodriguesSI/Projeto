@@ -14,6 +14,8 @@ from .views import (
     adicionar_grupo,
     atualizar_funcoes_grupo,
     atualizar_minha_participacao,
+    atualizar_funcoes_grupo,
+    atualizar_minha_participacao,
 )
 
 urlpatterns = [
@@ -29,6 +31,8 @@ urlpatterns = [
     path("remover-aluno-grupo/", remover_aluno_grupo),
     path("excluir-trabalho/", excluir_trabalho),
     path("adicionar-grupo/", adicionar_grupo),
+    path("atualizar-funcoes-grupo/", atualizar_funcoes_grupo),
+    path("atualizar-minha-participacao/", atualizar_minha_participacao),
     path("atualizar-funcoes-grupo/", atualizar_funcoes_grupo),
     path("atualizar-minha-participacao/", atualizar_minha_participacao),
 ]

@@ -258,58 +258,36 @@ def listar_trabalhos(request):
         lista.append({
 
             "id": trabalho.id,
-
             "titulo": trabalho.titulo,
-
             "professorNome": trabalho.professor.nome,
-
             "professorId": trabalho.professor.id,
-
             "materia": trabalho.materia.nome,
-
             "materiaId": trabalho.materia.id,
-
             "periodo": trabalho.materia.periodo,
-
-            "dataInicio": str(
-                trabalho.data_inicio
-            ),
-
-            "dataFim": str(
-                trabalho.data_fim
-            ),
-
+            "dataInicio": str(trabalho.data_inicio),
+            "dataFim": str(trabalho.data_fim),
             "usarSenha": trabalho.usar_senha,
 
             "grupos": [
-
                 {
-
                     "id": grupo.id,
-
                     "nome": grupo.nome,
-
                     "tema": grupo.tema,
-
                     "limiteParticipantes": grupo.limite_participantes,
-
                     "funcoesDisponiveis": grupo.funcoes_disponiveis or "",
 
                     "alunos": [
-
                         {
-
-                            "id": aluno.id,
-
-                            "nome": aluno.nome,
-
-                            "matricula": aluno.matricula
-
+                            "id": p.aluno.id,
+                            "nome": p.aluno.nome,
+                            "matricula": p.aluno.matricula,
+                            "funcao": p.funcao or "",
+                            "anotacaoAluno": p.anotacao_aluno or "",
+                            "arquivoUrl": p.arquivo.url if p.arquivo else "",
                         }
 
-                        for aluno in grupo.alunos.all()
+                        for p in ParticipacaoGrupo.objects.filter(grupo=grupo)
                     ]
-
                 }
 
                 for grupo in trabalho.grupos.all()
@@ -696,4 +674,64 @@ def atualizar_minha_participacao(request):
     return resposta({
         "sucesso": True,
         "mensagem": "Sua participação foi atualizada com sucesso"
+    })
+
+@csrf_exempt
+def atualizar_funcoes_grupo(request):
+
+    if request.method == "OPTIONS":
+        return resposta({})
+
+    if request.method != "POST":
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Use POST"
+        }, 405)
+
+    dados = json.loads(request.body)
+
+    grupo = Grupo.objects.get(
+        id=dados.get("grupoId")
+    )
+
+    grupo.funcoes_disponiveis = dados.get("funcoes", "")
+    grupo.save()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Funções salvas com sucesso"
+    })
+
+
+@csrf_exempt
+def atualizar_minha_participacao(request):
+
+    if request.method == "OPTIONS":
+        return resposta({})
+
+    if request.method != "POST":
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Use POST"
+        }, 405)
+
+    aluno_id = request.POST.get("alunoId")
+    grupo_id = request.POST.get("grupoId")
+
+    participacao = ParticipacaoGrupo.objects.get(
+        aluno_id=aluno_id,
+        grupo_id=grupo_id
+    )
+
+    participacao.funcao = request.POST.get("funcao", "")
+    participacao.anotacao_aluno = request.POST.get("anotacaoAluno", "")
+
+    if request.FILES.get("arquivo"):
+        participacao.arquivo = request.FILES.get("arquivo")
+
+    participacao.save()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Participação salva com sucesso"
     })

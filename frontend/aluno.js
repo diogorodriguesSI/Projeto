@@ -445,41 +445,90 @@ function formatarData(data) {
     return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
+async function salvarMinhaParticipacao(grupoId) {
+
+    const funcao = document.getElementById(`funcaoAluno-${grupoId}`).value;
+    const anotacaoAluno = document.getElementById(`anotacaoAluno-${grupoId}`).value;
+    const arquivoInput = document.getElementById(`arquivoAluno-${grupoId}`);
+
+    const formData = new FormData();
+
+    formData.append("alunoId", aluno.id);
+    formData.append("grupoId", grupoId);
+    formData.append("funcao", funcao);
+    formData.append("anotacaoAluno", anotacaoAluno);
+
+    if (arquivoInput.files.length > 0) {
+        formData.append("arquivo", arquivoInput.files[0]);
+    }
+
+    const resposta = await fetch(`${API}/atualizar-minha-participacao/`, {
+        method: "POST",
+        body: formData
+    });
+
+    const resultado = await resposta.json();
+
+    alert(resultado.mensagem);
+
+    if (resultado.sucesso) {
+        await carregarTrabalhosAluno();
+    }
+}
+
 carregarTrabalhosAluno();
 
 function montarAreaAlunoGrupo(grupo) {
+
     const alunoNoGrupo = grupo.alunos.find(a => a.id === aluno.id);
 
     const funcoes = grupo.funcoesDisponiveis
-        ? grupo.funcoesDisponiveis.split(",").map(f => f.trim()).filter(f => f !== "")
+        ? grupo.funcoesDisponiveis
+            .split(",")
+            .map(f => f.trim())
+            .filter(f => f !== "")
         : [];
 
     return `
         <div class="area-participacao-aluno">
+
             <h4>Minha participação</h4>
 
             <label>Escolha sua função</label>
+
             <select id="funcaoAluno-${grupo.id}">
                 <option value="">Selecione uma função</option>
+
                 ${funcoes.map(funcao => `
-                    <option value="${funcao}">
+                    <option
+                        value="${funcao}"
+                        ${alunoNoGrupo && alunoNoGrupo.funcao === funcao ? "selected" : ""}
+                    >
                         ${funcao}
                     </option>
                 `).join("")}
             </select>
 
             <label>Anotações</label>
+
             <textarea
                 id="anotacaoAluno-${grupo.id}"
                 rows="3"
                 placeholder="Escreva suas anotações sobre sua parte..."
-            ></textarea>
+            >${alunoNoGrupo ? alunoNoGrupo.anotacaoAluno || "" : ""}</textarea>
 
             <label>Enviar arquivo</label>
+
             <input
                 type="file"
                 id="arquivoAluno-${grupo.id}"
             >
+
+            ${
+                alunoNoGrupo && alunoNoGrupo.arquivoUrl
+                ? `<p><a href="http://127.0.0.1:8000${alunoNoGrupo.arquivoUrl}" target="_blank">Ver arquivo enviado</a></p>`
+                : ""
+            }
 
             <button
                 type="button"
@@ -488,6 +537,7 @@ function montarAreaAlunoGrupo(grupo) {
             >
                 Salvar minha participação
             </button>
+
         </div>
     `;
 }
