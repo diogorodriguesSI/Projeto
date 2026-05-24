@@ -160,4 +160,6 @@ class Grupo(models.Model):
     def __str__(self):
         return f"{self.nome} - {self.trabalho.titulo}"
     
+
+
     
