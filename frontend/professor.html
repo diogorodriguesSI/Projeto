@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Área do Professor</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <h1>Área do Professor</h1>
+
+        <h2 id="nome"></h2>
+
+    </div>
+
+    <script>
+
+        // - Pega professor salvo
+        const usuario =
+            JSON.parse(localStorage.getItem("usuario"))
+
+        // - Mostra nome
+        document.getElementById("nome")
+        .innerText =
+        usuario.nome
+
+    </script>
+
+</body>
+</html>

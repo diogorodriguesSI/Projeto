@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Área do Aluno</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <div class="login-box">
+
+        <h1>Área do Aluno</h1>
+
+        <h2 id="nome"></h2>
+
+        <p id="periodo"></p>
+
+    </div>
+
+    <script>
+
+        // - Pega usuário salvo
+        const usuario =
+            JSON.parse(localStorage.getItem("usuario"))
+
+        // - Mostra nome
+        document.getElementById("nome")
+        .innerText =
+        usuario.nome
+
+        // - Mostra período
+        document.getElementById("periodo")
+        .innerText =
+        "Período: " + usuario.periodo
+        
+
+    </script>
+
+</body>
+</html>

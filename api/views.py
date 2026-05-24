@@ -6,8 +6,9 @@ import json
 #Alunos 
 
 usuarios = [  
+    #=============
     # 1º PERÍODO
-
+    #=============
     {
         "matricula": "2024101001",
         "nome": "Lucas Almeida Santos",
@@ -44,8 +45,9 @@ usuarios = [
         "senha": "123456"
     },
 
+    #=============
     # 2º PERÍODO
-
+    #=============
     {
         "matricula": "2024101005",
         "nome": "José Henrique Souza",
@@ -82,9 +84,9 @@ usuarios = [
         "senha": "123456"
     },
 
-  
+    #=============
     # 3º PERÍODO
-
+    #=============
 
     {
         "matricula": "2024101009",
@@ -122,9 +124,9 @@ usuarios = [
         "senha": "123456"
     },
 
-
+    #=============
     # 4º PERÍODO
-
+    #=============
 
     {
         "matricula": "2024101013",
@@ -162,9 +164,9 @@ usuarios = [
         "senha": "123456"
     },
 
-
+    #=============
     # 5º PERÍODO
-
+    #=============
 
     {
         "matricula": "2024101136",
@@ -204,35 +206,6 @@ usuarios = [
 
 ]
 
-def login(request):
-
-    if request.method == "POST":
-
-        dados = json.loads(request.body)
-
-        matricula = dados.get("matricula")
-        senha = dados.get("senha")
-
-        for usuario in usuarios:
-
-            if (
-                usuario["matricula"] == matricula and
-                usuario["senha"] == senha
-            ):
-
-                return JsonResponse({
-                    "sucesso": True,
-                    "usuario": usuario
-                })
-
-        return JsonResponse({
-            "sucesso": False,
-            "mensagem": "Matrícula ou senha inválida"
-        }, status=401)
-
-    return JsonResponse({
-        "mensagem": "Use POST para acessar esta rota"
-    })
 
 professores = [
 
@@ -420,3 +393,66 @@ professores = [
     }
 
 ]
+
+def login(request):
+
+    # Verifica se a requisição foi enviada usando POST
+    if request.method == "POST":
+
+        # Converte os dados JSON enviados para dicionário Python
+        dados = json.loads(request.body)
+
+        # Pega a matrícula e senha enviadas no login
+        matricula = dados.get("matricula")
+        senha = dados.get("senha")
+
+        # =========================================
+        # LOGIN DOS ALUNOS
+        # Percorre todos os alunos cadastrados
+        # =========================================
+        for usuario in usuarios:
+
+            # Verifica se matrícula e senha estão corretas
+            if (
+                usuario["matricula"] == matricula and
+                usuario["senha"] == senha
+            ):
+
+                # Retorna sucesso e os dados do aluno
+                return JsonResponse({
+                    "sucesso": True,
+                    "usuario": usuario
+                })
+
+        # =========================================
+        # LOGIN DOS PROFESSORES
+        # Percorre todos os professores cadastrados
+        # =========================================
+        for professor in professores:
+
+            # Verifica se matrícula e senha estão corretas
+            if (
+                professor["matricula"] == matricula and
+                professor["senha"] == senha
+            ):
+
+                # Retorna sucesso e os dados do professor
+                return JsonResponse({
+                    "sucesso": True,
+                    "usuario": professor
+                })
+
+        # =========================================
+        # Caso matrícula ou senha estejam erradas
+        # =========================================
+        return JsonResponse({
+            "sucesso": False,
+            "mensagem": "Matrícula ou senha inválida"
+        }, status=401)
+
+    # =========================================
+    # Caso a rota seja acessada sem POST
+    # =========================================
+    return JsonResponse({
+        "mensagem": "Use POST para acessar esta rota"
+    })
