@@ -536,3 +536,385 @@ footer {
         align-items: stretch;
     }
 }
+
+.aluno-page {
+    background: #f9fafb;
+    min-height: 100vh;
+}
+
+.aluno-header {
+    background: #2563eb;
+    color: white;
+    padding: 18px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.aluno-header h1 {
+    font-size: 28px;
+}
+
+.aluno-header p {
+    color: #dbeafe;
+    margin-top: 4px;
+}
+
+.aluno-container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+.aluno-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+.aluno-card h2 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: #1f2937;
+}
+
+.aluno-subtitle {
+    color: #6b7280;
+    margin-bottom: 24px;
+}
+
+.materia-box {
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.materia-header {
+    width: 100%;
+    border: none;
+    background: #f9fafb;
+    padding: 18px 24px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.materia-header > div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.materia-header strong {
+    font-size: 20px;
+    color: #1f2937;
+}
+
+.badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.materia-conteudo {
+    padding: 24px;
+    background: white;
+}
+
+.aluno-trabalho-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.aluno-trabalho-topo {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.aluno-trabalho-topo h3 {
+    font-size: 22px;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.descricao {
+    color: #6b7280;
+    margin-bottom: 10px;
+}
+
+.professor {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.aluno-trabalho-topo button,
+.grupo-card-topo button,
+.btn-confirmar {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 11px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.aluno-trabalho-topo button:hover,
+.grupo-card-topo button:hover,
+.btn-confirmar:hover {
+    background: #1d4ed8;
+}
+
+button:disabled {
+    background: #d1d5db !important;
+    color: #6b7280 !important;
+    cursor: not-allowed !important;
+}
+
+.aluno-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 20px 0;
+}
+
+.aluno-info-grid div {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.aluno-info-grid span {
+    display: block;
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.aluno-info-grid strong {
+    color: #1f2937;
+}
+
+.aluno-grupos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 12px;
+}
+
+.aluno-grupo-card {
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.aluno-grupo-card.lotado {
+    background: #f3f4f6;
+}
+
+.grupo-card-topo {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.grupo-card-topo h5,
+.grupo-card-topo h4 {
+    font-size: 17px;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.grupo-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tag-lock,
+.status-verde,
+.status-amarelo,
+.status-vermelho {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.tag-lock {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.status-verde {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-amarelo {
+    background: #fef9c3;
+    color: #a16207;
+}
+
+.status-vermelho {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.alunos-lista {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #4b5563;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 999;
+}
+
+.escondido {
+    display: none !important;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    overflow: hidden;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-content.grande {
+    width: 100%;
+    max-width: 850px;
+}
+
+.modal-content.pequeno {
+    width: 100%;
+    max-width: 440px;
+}
+
+.modal-header {
+    padding: 24px 30px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.modal-header.azul {
+    background: #2563eb;
+    color: white;
+}
+
+.modal-header button {
+    border: none;
+    background: #f3f4f6;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#modalCorpo {
+    padding: 28px 30px;
+}
+
+.detalhe-bloco {
+    margin-bottom: 24px;
+}
+
+.detalhe-bloco h3 {
+    margin-bottom: 8px;
+}
+
+.detalhe-grupo {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 20px;
+    border-radius: 14px;
+    margin-top: 14px;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-body label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.modal-body input {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    outline: none;
+}
+
+.info-grupo-modal {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 18px 0;
+    color: #4b5563;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-cancelar {
+    flex: 1;
+    background: #e5e7eb;
+    color: #1f2937;
+    border: none;
+    padding: 13px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.btn-confirmar {
+    flex: 1;
+}
+
+@media (max-width: 750px) {
+    .aluno-header {
+        flex-direction: column;
+        gap: 14px;
+        text-align: center;
+    }
+
+    .aluno-trabalho-topo,
+    .grupo-card-topo,
+    .modal-actions {
+        flex-direction: column;
+    }
+
+    .aluno-info-grid,
+    .aluno-grupos-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -7,65 +7,267 @@ if (!aluno || aluno.tipo !== "aluno") {
 document.getElementById("dadosAluno").innerText =
     `${aluno.nome} - ${aluno.periodo}º Período`;
 
+let todosTrabalhos = [];
+let trabalhoSelecionado = null;
+let grupoSelecionado = null;
+
 async function carregarTrabalhosAluno() {
     const resposta = await fetch(`${API}/trabalhos/?periodo=${aluno.periodo}`);
     const trabalhos = await resposta.json();
 
-    const lista = document.getElementById("listaTrabalhos");
+    todosTrabalhos = trabalhos;
+
+    const lista = document.getElementById("listaTrabalhosAluno");
     lista.innerHTML = "";
 
     if (trabalhos.length === 0) {
-        lista.innerHTML = "<p>Nenhum trabalho disponível para seu período ainda.</p>";
+        lista.innerHTML = `
+            <div class="empty-box">
+                Nenhum trabalho disponível para seu período ainda.
+            </div>
+        `;
         return;
     }
 
+    const materias = {};
+
     trabalhos.forEach(trabalho => {
-        const div = document.createElement("div");
-        div.className = "trabalho";
+        if (!materias[trabalho.materia]) {
+            materias[trabalho.materia] = [];
+        }
 
-        div.innerHTML = `
-            <h3>${trabalho.titulo}</h3>
-            <p><strong>Professor:</strong> ${trabalho.professorNome}</p>
-            <p><strong>Matéria:</strong> ${trabalho.materia}</p>
-            <p><strong>Data:</strong> ${trabalho.dataInicio} até ${trabalho.dataFim}</p>
+        materias[trabalho.materia].push(trabalho);
+    });
 
-            <h4>Escolha um grupo</h4>
+    Object.keys(materias).forEach(materia => {
+        const divMateria = document.createElement("div");
+        divMateria.className = "materia-box";
 
-            ${trabalho.grupos.map(grupo => `
-                <div class="grupo">
-                    <strong>${grupo.nome}</strong>
-                    <p><strong>Tema:</strong> ${grupo.tema}</p>
-                    <p><strong>Vagas:</strong> ${grupo.alunos.length}/${grupo.limiteParticipantes}</p>
-                    <p><strong>Alunos:</strong> ${
-                        grupo.alunos.length > 0
-                        ? grupo.alunos.map(a => a.nome).join(", ")
-                        : "Nenhum aluno ainda"
-                    }</p>
-
-                    ${trabalho.usarSenha ? `
-                        <input
-                            type="password"
-                            id="senha-${grupo.id}"
-                            placeholder="Senha do grupo"
-                        >
-                    ` : ""}
-
-                    <button onclick="entrarGrupo(${grupo.id}, ${trabalho.usarSenha})">
-                        Entrar neste grupo
-                    </button>
+        divMateria.innerHTML = `
+            <button class="materia-header" onclick="alternarMateria(this)">
+                <div>
+                    <span class="seta">▶</span>
+                    <strong>${materia}</strong>
+                    <span class="badge">${materias[materia].length} trabalho(s)</span>
                 </div>
-            `).join("")}
+            </button>
+
+            <div class="materia-conteudo escondido">
+                ${materias[materia].map(trabalho => montarTrabalhoHTML(trabalho)).join("")}
+            </div>
         `;
 
-        lista.appendChild(div);
+        lista.appendChild(divMateria);
     });
 }
 
-async function entrarGrupo(grupoId, usarSenha) {
+function montarTrabalhoHTML(trabalho) {
+    return `
+        <div class="aluno-trabalho-card">
+            <div class="aluno-trabalho-topo">
+                <div>
+                    <h3>${trabalho.titulo}</h3>
+                    <p class="descricao">Trabalho criado pelo professor ${trabalho.professorNome}</p>
+                    <p class="professor">
+                        <strong>Professor:</strong> ${trabalho.professorNome}
+                    </p>
+                </div>
+
+                <button onclick="abrirDetalhes(${trabalho.id})">
+                    👁 Ver Detalhes
+                </button>
+            </div>
+
+            <div class="aluno-info-grid">
+                <div>
+                    <span>📅 Início</span>
+                    <strong>${formatarData(trabalho.dataInicio)}</strong>
+                </div>
+
+                <div>
+                    <span>📅 Término</span>
+                    <strong>${formatarData(trabalho.dataFim)}</strong>
+                </div>
+
+                <div>
+                    <span>👥 Grupos</span>
+                    <strong>${trabalho.grupos.length} disponível(is)</strong>
+                </div>
+            </div>
+
+            <h4>Grupos Disponíveis:</h4>
+
+            <div class="aluno-grupos-grid">
+                ${trabalho.grupos.map(grupo => montarGrupoHTML(trabalho, grupo)).join("")}
+            </div>
+        </div>
+    `;
+}
+
+function montarGrupoHTML(trabalho, grupo) {
+    const ocupados = grupo.alunos.length;
+    const limite = grupo.limiteParticipantes;
+    const livres = limite - ocupados;
+    const lotado = livres <= 0;
+
+    let statusClasse = "status-verde";
+
+    if (lotado) {
+        statusClasse = "status-vermelho";
+    } else if (livres <= 2) {
+        statusClasse = "status-amarelo";
+    }
+
+    return `
+        <div class="aluno-grupo-card ${lotado ? "lotado" : ""}">
+            <div class="grupo-card-topo">
+                <div>
+                    <h5>${grupo.nome}</h5>
+
+                    <div class="grupo-tags">
+                        ${trabalho.usarSenha ? `<span class="tag-lock">🔒 Protegido</span>` : ""}
+                        <span class="${statusClasse}">
+                            ${lotado ? "Cheio" : `${livres} vaga(s)`}
+                        </span>
+                    </div>
+                </div>
+
+                <button
+                    ${lotado ? "disabled" : ""}
+                    onclick="abrirInscricao(${trabalho.id}, ${grupo.id})"
+                >
+                    ${lotado ? "Lotado" : "Inscrever"}
+                </button>
+            </div>
+
+            <p><strong>Tema:</strong> ${grupo.tema}</p>
+            <p><strong>Participantes:</strong> ${ocupados}/${limite}</p>
+
+            <p class="alunos-lista">
+                <strong>Alunos:</strong>
+                ${
+                    grupo.alunos.length > 0
+                    ? grupo.alunos.map(a => a.nome).join(", ")
+                    : "Nenhum aluno ainda"
+                }
+            </p>
+        </div>
+    `;
+}
+
+function alternarMateria(botao) {
+    const conteudo = botao.nextElementSibling;
+    const seta = botao.querySelector(".seta");
+
+    conteudo.classList.toggle("escondido");
+
+    seta.innerText = conteudo.classList.contains("escondido") ? "▶" : "▼";
+}
+
+function abrirDetalhes(trabalhoId) {
+    trabalhoSelecionado = todosTrabalhos.find(t => t.id === trabalhoId);
+
+    document.getElementById("modalTitulo").innerText = trabalhoSelecionado.titulo;
+    document.getElementById("modalMateria").innerText =
+        `${trabalhoSelecionado.materia} - ${trabalhoSelecionado.professorNome}`;
+
+    document.getElementById("modalCorpo").innerHTML = `
+        <div class="detalhe-bloco">
+            <h3>Descrição</h3>
+            <p>Trabalho criado pelo professor ${trabalhoSelecionado.professorNome}.</p>
+        </div>
+
+        <div class="aluno-info-grid">
+            <div>
+                <span>Data de Início</span>
+                <strong>${formatarData(trabalhoSelecionado.dataInicio)}</strong>
+            </div>
+
+            <div>
+                <span>Data Final</span>
+                <strong>${formatarData(trabalhoSelecionado.dataFim)}</strong>
+            </div>
+        </div>
+
+        <h3>Grupos (${trabalhoSelecionado.grupos.length})</h3>
+
+        ${trabalhoSelecionado.grupos.map(grupo => montarDetalheGrupoHTML(grupo)).join("")}
+    `;
+
+    document.getElementById("modalDetalhes").classList.remove("escondido");
+}
+
+function montarDetalheGrupoHTML(grupo) {
+    const ocupados = grupo.alunos.length;
+    const limite = grupo.limiteParticipantes;
+    const livres = limite - ocupados;
+    const lotado = livres <= 0;
+
+    return `
+        <div class="detalhe-grupo">
+            <div class="grupo-card-topo">
+                <div>
+                    <h4>${grupo.nome}</h4>
+                    <span class="${lotado ? "status-vermelho" : "status-verde"}">
+                        ${lotado ? "Cheio" : `${livres} vaga(s)`}
+                    </span>
+                </div>
+
+                <button
+                    ${lotado ? "disabled" : ""}
+                    onclick="abrirInscricao(${trabalhoSelecionado.id}, ${grupo.id})"
+                >
+                    ${lotado ? "Lotado" : "Inscrever-se"}
+                </button>
+            </div>
+
+            <p><strong>Tema:</strong> ${grupo.tema}</p>
+            <p><strong>Participantes:</strong> ${ocupados}/${limite}</p>
+        </div>
+    `;
+}
+
+function fecharDetalhes() {
+    document.getElementById("modalDetalhes").classList.add("escondido");
+}
+
+function abrirInscricao(trabalhoId, grupoId) {
+    trabalhoSelecionado = todosTrabalhos.find(t => t.id === trabalhoId);
+    grupoSelecionado = trabalhoSelecionado.grupos.find(g => g.id === grupoId);
+
+    document.getElementById("modalGrupoNome").innerText = grupoSelecionado.nome;
+
+    if (trabalhoSelecionado.usarSenha) {
+        document.getElementById("campoSenhaGrupo").innerHTML = `
+            <label>🔒 Senha do Grupo</label>
+            <input
+                type="password"
+                id="senhaGrupoAluno"
+                placeholder="Digite a senha do grupo"
+            >
+        `;
+    } else {
+        document.getElementById("campoSenhaGrupo").innerHTML = "";
+    }
+
+    document.getElementById("infoGrupoModal").innerHTML = `
+        <p><strong>Grupo:</strong> ${grupoSelecionado.nome}</p>
+        <p><strong>Tema:</strong> ${grupoSelecionado.tema}</p>
+        <p><strong>Participantes:</strong> ${grupoSelecionado.alunos.length}/${grupoSelecionado.limiteParticipantes}</p>
+    `;
+
+    document.getElementById("modalInscricao").classList.remove("escondido");
+}
+
+function fecharInscricao() {
+    document.getElementById("modalInscricao").classList.add("escondido");
+}
+
+async function confirmarInscricao() {
     let senha = "";
 
-    if (usarSenha) {
-        senha = document.getElementById(`senha-${grupoId}`).value;
+    if (trabalhoSelecionado.usarSenha) {
+        senha = document.getElementById("senhaGrupoAluno").value;
     }
 
     const resposta = await fetch(`${API}/entrar-grupo/`, {
@@ -75,7 +277,7 @@ async function entrarGrupo(grupoId, usarSenha) {
         },
         body: JSON.stringify({
             alunoId: aluno.id,
-            grupoId: grupoId,
+            grupoId: grupoSelecionado.id,
             senha: senha
         })
     });
@@ -85,8 +287,17 @@ async function entrarGrupo(grupoId, usarSenha) {
     alert(resultado.mensagem);
 
     if (resultado.sucesso) {
+        fecharInscricao();
+        fecharDetalhes();
         carregarTrabalhosAluno();
     }
+}
+
+function formatarData(data) {
+    if (!data) return "";
+
+    const partes = data.split("-");
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
 carregarTrabalhosAluno();
