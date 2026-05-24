@@ -13,13 +13,10 @@
         <p id="dadosAluno"></p>
     </div>
 
-    <button class="btn-sair" onclick="sair()">
-        Sair
-    </button>
+    <button class="btn-sair" onclick="sair()">Sair</button>
 </header>
 
 <main class="aluno-container">
-
     <section class="aluno-card">
         <h2>Trabalhos Disponíveis</h2>
         <p class="aluno-subtitle">
@@ -28,9 +25,9 @@
 
         <div id="listaTrabalhosAluno"></div>
     </section>
-
 </main>
 
+<!-- MODAL DE DETALHES -->
 <div id="modalDetalhes" class="modal escondido">
     <div class="modal-content grande">
         <div class="modal-header">
@@ -39,13 +36,20 @@
                 <p id="modalMateria"></p>
             </div>
 
-            <button onclick="fecharDetalhes()">✕</button>
+            <button
+                class="btn-fechar-modal"
+                type="button"
+                onclick="fecharDetalhes()"
+            >
+                ✕
+            </button>
         </div>
 
         <div id="modalCorpo"></div>
     </div>
 </div>
 
+<!-- MODAL DE INSCRIÇÃO -->
 <div id="modalInscricao" class="modal escondido">
     <div class="modal-content pequeno">
         <div class="modal-header azul">
@@ -53,6 +57,14 @@
                 <h2>Inscrever-se no Grupo</h2>
                 <p id="modalGrupoNome"></p>
             </div>
+
+            <button
+                class="btn-fechar-modal"
+                type="button"
+                onclick="fecharInscricao()"
+            >
+                ✕
+            </button>
         </div>
 
         <div class="modal-body">

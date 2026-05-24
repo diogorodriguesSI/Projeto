@@ -110,12 +110,45 @@ function montarGrupoHTML(trabalho, grupo) {
     const livres = limite - ocupados;
     const lotado = livres <= 0;
 
+    const alunoEstaNesteGrupo = grupo.alunos.some(
+        a => a.id === aluno.id
+    );
+
+    const alunoEstaEmOutroGrupoDoTrabalho = trabalho.grupos.some(
+        g => g.alunos.some(a => a.id === aluno.id)
+    );
+
     let statusClasse = "status-verde";
 
     if (lotado) {
         statusClasse = "status-vermelho";
     } else if (livres <= 2) {
         statusClasse = "status-amarelo";
+    }
+
+    let botao = "";
+
+    if (alunoEstaNesteGrupo) {
+        botao = `
+            <button class="btn-sair-grupo" onclick="sairGrupo(${grupo.id})">
+                Sair deste grupo
+            </button>
+        `;
+    } else if (alunoEstaEmOutroGrupoDoTrabalho) {
+        botao = `
+            <button disabled>
+                Usuário inscrito em outro grupo deste trabalho.
+            </button>
+        `;
+    } else {
+        botao = `
+            <button
+                ${lotado ? "disabled" : ""}
+                onclick="abrirInscricao(${trabalho.id}, ${grupo.id})"
+            >
+                ${lotado ? "Lotado" : "Inscrever"}
+            </button>
+        `;
     }
 
     return `
@@ -129,15 +162,16 @@ function montarGrupoHTML(trabalho, grupo) {
                         <span class="${statusClasse}">
                             ${lotado ? "Cheio" : `${livres} vaga(s)`}
                         </span>
+
+                        ${alunoEstaNesteGrupo ? `
+                            <span class="status-inscrito">
+                                Você está neste grupo
+                            </span>
+                        ` : ""}
                     </div>
                 </div>
 
-                <button
-                    ${lotado ? "disabled" : ""}
-                    onclick="abrirInscricao(${trabalho.id}, ${grupo.id})"
-                >
-                    ${lotado ? "Lotado" : "Inscrever"}
-                </button>
+                ${botao}
             </div>
 
             <p><strong>Tema:</strong> ${grupo.tema}</p>
@@ -262,7 +296,6 @@ function abrirInscricao(trabalhoId, grupoId) {
 function fecharInscricao() {
     document.getElementById("modalInscricao").classList.add("escondido");
 }
-
 async function confirmarInscricao() {
     let senha = "";
 
@@ -284,7 +317,13 @@ async function confirmarInscricao() {
 
     const resultado = await resposta.json();
 
-    alert(resultado.mensagem);
+    if (!resultado.sucesso && resultado.grupo) {
+        alert(
+            `${resultado.mensagem}\n\nGrupo atual: ${resultado.grupo.nome}\nTema: ${resultado.grupo.tema}`
+        );
+    } else {
+        alert(resultado.mensagem);
+    }
 
     if (resultado.sucesso) {
         fecharInscricao();
@@ -301,3 +340,31 @@ function formatarData(data) {
 }
 
 carregarTrabalhosAluno();
+async function sairGrupo(grupoId) {
+    const confirmar = confirm(
+        "Tem certeza que deseja sair deste grupo?"
+    );
+
+    if (!confirmar) {
+        return;
+    }
+
+    const resposta = await fetch(`${API}/sair-grupo/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            alunoId: aluno.id,
+            grupoId: grupoId
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    alert(resultado.mensagem);
+
+    if (resultado.sucesso) {
+        carregarTrabalhosAluno();
+    }
+}

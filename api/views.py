@@ -337,73 +337,102 @@ def entrar_grupo(request):
         return resposta({})
 
     if request.method != "POST":
-
         return resposta({
-
             "sucesso": False,
-
             "mensagem": "Use POST"
-
         }, 405)
 
-    # Recebe JSON
     dados = json.loads(request.body)
 
-    # Busca aluno
     aluno = Usuario.objects.get(
         id=dados.get("alunoId")
     )
 
-    # Busca grupo
     grupo = Grupo.objects.get(
         id=dados.get("grupoId")
     )
 
     senha = dados.get("senha", "")
 
-    # Verifica senha do grupo
-    if grupo.senha and grupo.senha != senha:
+    trabalho = grupo.trabalho
+
+    # Verifica se o aluno já está em algum grupo desse mesmo trabalho
+    grupo_ja_inscrito = Grupo.objects.filter(
+        trabalho=trabalho,
+        alunos=aluno
+    ).first()
+
+    if grupo_ja_inscrito:
 
         return resposta({
 
             "sucesso": False,
 
-            "mensagem":
-            "Senha do grupo incorreta"
+            "mensagem": "Você já está inscrito no grupo.",
 
+            "grupo": {
+                "id": grupo_ja_inscrito.id,
+                "nome": grupo_ja_inscrito.nome,
+                "tema": grupo_ja_inscrito.tema
+            }
+
+        }, 400)
+
+    # Verifica senha
+    if grupo.senha and grupo.senha != senha:
+
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Senha do grupo incorreta"
         }, 401)
 
     # Verifica limite
     if grupo.alunos.count() >= grupo.limite_participantes:
 
         return resposta({
-
             "sucesso": False,
-
             "mensagem": "Grupo cheio"
-
-        }, 400)
-
-    # Verifica se já entrou
-    if grupo.alunos.filter(id=aluno.id).exists():
-
-        return resposta({
-
-            "sucesso": False,
-
-            "mensagem":
-            "Você já está nesse grupo"
-
         }, 400)
 
     # Adiciona aluno no grupo
     grupo.alunos.add(aluno)
 
     return resposta({
-
         "sucesso": True,
+        "mensagem": "Você entrou no grupo com sucesso"
+    })
+@csrf_exempt
+def sair_grupo(request):
 
-        "mensagem":
-        "Você entrou no grupo com sucesso"
+    if request.method == "OPTIONS":
+        return resposta({})
 
+    if request.method != "POST":
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Use POST"
+        }, 405)
+
+    dados = json.loads(request.body)
+
+    aluno = Usuario.objects.get(
+        id=dados.get("alunoId")
+    )
+
+    grupo = Grupo.objects.get(
+        id=dados.get("grupoId")
+    )
+
+    if not grupo.alunos.filter(id=aluno.id).exists():
+
+        return resposta({
+            "sucesso": False,
+            "mensagem": "Você não está inscrito neste grupo"
+        }, 400)
+
+    grupo.alunos.remove(aluno)
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Você saiu do grupo com sucesso"
     })
