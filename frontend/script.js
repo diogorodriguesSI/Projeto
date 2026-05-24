@@ -1,50 +1,36 @@
-async function fazerLogin(){
+const API = "http://127.0.0.1:8000/api";
 
-    const matricula =
-        document.getElementById("matricula").value
+async function fazerLogin() {
+    const matricula = document.getElementById("matricula").value.trim();
+    const senha = document.getElementById("senha").value.trim();
+    const mensagem = document.getElementById("mensagem");
 
-    const senha =
-        document.getElementById("senha").value
+    mensagem.innerText = "";
 
-    const resposta = await fetch(
-        "http://127.0.0.1:8000/api/login/",
-        {
+    const resposta = await fetch(`${API}/login/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ matricula, senha })
+    });
 
-            method:"POST",
+    const dados = await resposta.json();
 
-            headers:{
-                "Content-Type":"application/json"
-            },
+    if (dados.sucesso) {
+        localStorage.setItem("usuario", JSON.stringify(dados.usuario));
 
-            body:JSON.stringify({
-                matricula:matricula,
-                senha:senha
-            })
+        if (dados.usuario.tipo === "professor") {
+            window.location.href = "./professor.html";
+        } else {
+            window.location.href = "./aluno.html";
         }
-    )
-
-    const dados = await resposta.json()
-
-    console.log(dados)
-
-    if(dados.sucesso){
-
-        // - Verifica se é aluno
-        if(dados.usuario.tipo == "aluno"){
-
-            window.location.href = "aluno.html"
-        }
-
-        // - Verifica se é professor
-        else{
-
-            window.location.href = "professor.html"
-        }
-
-    }else{
-
-        document.getElementById("mensagem")
-        .innerText = "Login inválido"
+    } else {
+        mensagem.innerText = "Matrícula ou senha inválida.";
     }
+}
 
+function sair() {
+    localStorage.removeItem("usuario");
+    window.location.href = "./login.html";
 }
