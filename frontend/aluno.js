@@ -67,7 +67,7 @@ function montarTrabalhoHTML(trabalho) {
             <div class="flex-between mb-3">
                 <div>
                     <h3 style="font-size: 20px;">${trabalho.titulo}</h3>
-                    <p style="color: var(--text-muted); font-size: 14px;">Criado por: <strong>${trabalho.professorNome}</strong></p>
+                    <p style="color: var(--text-muted); font-size: 14px;">Criado por: <strong>${trabalho.professor}</strong></p>
                 </div>
 
                 <button type="button" class="btn btn-primary" onclick="abrirDetalhes(${trabalho.id})">
@@ -277,12 +277,12 @@ function abrirDetalhes(trabalhoId) {
 
     document.getElementById("modalTitulo").innerText = trabalhoSelecionado.titulo;
     document.getElementById("modalMateria").innerText =
-        `${trabalhoSelecionado.materia} - ${trabalhoSelecionado.professorNome}`;
+        `${trabalhoSelecionado.materia} - ${trabalhoSelecionado.professor}`;
 
     document.getElementById("modalCorpo").innerHTML = `
         <div class="mb-3">
             <h3 style="font-size: 18px; margin-bottom: 8px;">Descrição</h3>
-            <p>Trabalho criado pelo professor <strong>${trabalhoSelecionado.professorNome}</strong>.</p>
+            <p>Trabalho criado pelo professor <strong>${trabalhoSelecionado.professor}</strong>.</p>
         </div>
 
         <div class="info-grid">
@@ -401,8 +401,8 @@ function abrirInscricao(trabalhoId, grupoId) {
     );
 
     if (alunoJaInscrito) {
-        alert(
-            `Você já está inscrito no grupo.\n\nGrupo atual: ${alunoJaInscrito.nome}\nTema: ${alunoJaInscrito.tema}`
+        mostrarAlerta(
+            `Você já está inscrito no grupo.\n\nGrupo atual: ${alunoJaInscrito.nome}\nTema: ${alunoJaInscrito.tema}`, 'warning'
         );
         return;
     }
@@ -462,7 +462,7 @@ async function confirmarInscricao() {
     const funcao = document.getElementById("funcaoGrupoAluno").value;
 
     if (!funcao) {
-        alert("Escolha sua função no grupo.");
+        mostrarAlerta("Escolha sua função no grupo.", 'warning');
         return;
     }
 
@@ -482,13 +482,13 @@ async function confirmarInscricao() {
     const resultado = await resposta.json();
 
     if (!resultado.sucesso && resultado.grupo) {
-        alert(
-            `${resultado.mensagem}\n\nGrupo atual: ${resultado.grupo.nome}\nTema: ${resultado.grupo.tema}`
+        mostrarAlerta(
+            `${resultado.mensagem}\n\nGrupo atual: ${resultado.grupo.nome}\nTema: ${resultado.grupo.tema}`, 'error'
         );
         return;
     }
 
-    alert(resultado.mensagem);
+    mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
 
     if (resultado.sucesso) {
         fecharInscricao();
@@ -501,34 +501,34 @@ async function confirmarInscricao() {
 }
 
 async function sairGrupo(grupoId) {
-    const confirmar = confirm("Tem certeza que deseja sair deste grupo?");
+    mostrarConfirmacao(
+        "Sair do Grupo",
+        "Tem certeza que deseja sair deste grupo?",
+        "Sair do Grupo",
+        async () => {
+            const resposta = await fetch(`${API}/sair-grupo/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    alunoId: aluno.id,
+                    grupoId: grupoId
+                })
+            });
 
-    if (!confirmar) {
-        return;
-    }
+            const resultado = await resposta.json();
 
-    const resposta = await fetch(`${API}/sair-grupo/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            alunoId: aluno.id,
-            grupoId: grupoId
-        })
-    });
+            mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
 
-    const resultado = await resposta.json();
-
-    alert(resultado.mensagem);
-
-    if (resultado.sucesso) {
-        await carregarTrabalhosAluno();
-
-        if (trabalhoSelecionado) {
-            abrirDetalhes(trabalhoSelecionado.id);
+            if (resultado.sucesso) {
+                await carregarTrabalhosAluno();
+                if (trabalhoSelecionado) {
+                    abrirDetalhes(trabalhoSelecionado.id);
+                }
+            }
         }
-    }
+    );
 }
 
 async function salvarMinhaParticipacao(grupoId) {
@@ -554,7 +554,7 @@ async function salvarMinhaParticipacao(grupoId) {
 
     const resultado = await resposta.json();
 
-    alert(resultado.mensagem);
+    mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
 
     if (resultado.sucesso) {
         await carregarTrabalhosAluno();

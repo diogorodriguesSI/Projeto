@@ -10,7 +10,7 @@ const trabalhoId = parametros.get("id");
 let trabalhoAtual = null;
 
 if (!trabalhoId) {
-    alert("Trabalho não encontrado.");
+    mostrarAlerta("Trabalho não encontrado.", 'error');
     window.location.href = "professor.html";
 }
 
@@ -151,7 +151,7 @@ async function salvarFuncoesGrupo(grupoId) {
 
     const resultado = await resposta.json();
 
-    alert(resultado.mensagem);
+    mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
 
     if (resultado.sucesso) {
         await carregarDetalhesTrabalho();
@@ -252,7 +252,7 @@ async function salvarParticipacao(participacaoId) {
 
     const resultado = await resposta.json();
 
-    alert(resultado.mensagem);
+    mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
 
     if (resultado.sucesso) {
         await carregarDetalhesTrabalho();
@@ -260,31 +260,30 @@ async function salvarParticipacao(participacaoId) {
 }
 
 async function removerAlunoGrupo(participacaoId) {
-    const confirmar = confirm(
-        "Tem certeza que deseja remover este aluno do grupo?"
+    mostrarConfirmacao(
+        "Remover Aluno",
+        "Tem certeza que deseja remover este aluno do grupo?",
+        "Remover Aluno",
+        async () => {
+            const resposta = await fetch(`${API}/remover-aluno-grupo/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    participacaoId
+                })
+            });
+
+            const resultado = await resposta.json();
+
+            mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
+
+            if (resultado.sucesso) {
+                await carregarDetalhesTrabalho();
+            }
+        }
     );
-
-    if (!confirmar) {
-        return;
-    }
-
-    const resposta = await fetch(`${API}/remover-aluno-grupo/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            participacaoId
-        })
-    });
-
-    const resultado = await resposta.json();
-
-    alert(resultado.mensagem);
-
-    if (resultado.sucesso) {
-        await carregarDetalhesTrabalho();
-    }
 }
 
 function voltarProfessor() {
@@ -312,31 +311,30 @@ carregarDetalhesTrabalho();
 
 
 async function excluirGrupo(grupoId) {
-    const confirmar = confirm(
-        "Tem certeza que deseja excluir este grupo? Todos os alunos serão removidos dele."
+    mostrarConfirmacao(
+        "Excluir Grupo",
+        "Tem certeza que deseja excluir este grupo? Todos os alunos serão removidos dele.",
+        "Excluir Grupo",
+        async () => {
+            const resposta = await fetch(`${API}/excluir-grupo/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    grupoId: grupoId
+                })
+            });
+
+            const resultado = await resposta.json();
+
+            mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
+
+            if (resultado.sucesso) {
+                await carregarDetalhesTrabalho();
+            }
+        }
     );
-
-    if (!confirmar) {
-        return;
-    }
-
-    const resposta = await fetch(`${API}/excluir-grupo/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            grupoId: grupoId
-        })
-    });
-
-    const resultado = await resposta.json();
-
-    alert(resultado.mensagem);
-
-    if (resultado.sucesso) {
-        await carregarDetalhesTrabalho();
-    }
 }
 function abrirModalAdicionarGrupo() {
     document.getElementById("modalAdicionarGrupo").classList.remove("escondido");
@@ -358,7 +356,7 @@ async function adicionarGrupo() {
     const senha = document.getElementById("novoGrupoSenha").value;
 
     if (!tema || !limiteParticipantes) {
-        alert("Preencha pelo menos o tema e o limite de participantes.");
+        mostrarAlerta("Preencha pelo menos o tema e o limite de participantes.", 'warning');
         return;
     }
 
@@ -378,7 +376,7 @@ async function adicionarGrupo() {
 
     const resultado = await resposta.json();
 
-    alert(resultado.mensagem);
+    mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
 
     if (resultado.sucesso) {
         fecharModalAdicionarGrupo();
@@ -387,29 +385,28 @@ async function adicionarGrupo() {
 }
 
 async function excluirTrabalho() {
-    const confirmar = confirm(
-        "Tem certeza que deseja excluir este trabalho? Todos os grupos e alunos inscritos nele serão removidos."
+    mostrarConfirmacao(
+        "Excluir Trabalho",
+        "Tem certeza que deseja excluir este trabalho? Todos os grupos e alunos inscritos nele serão removidos.",
+        "Excluir Trabalho",
+        async () => {
+            const resposta = await fetch(`${API}/excluir-trabalho/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    trabalhoId: trabalhoId
+                })
+            });
+
+            const resultado = await resposta.json();
+
+            mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
+
+            if (resultado.sucesso) {
+                window.location.href = "professor.html";
+            }
+        }
     );
-
-    if (!confirmar) {
-        return;
-    }
-
-    const resposta = await fetch(`${API}/excluir-trabalho/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            trabalhoId: trabalhoId
-        })
-    });
-
-    const resultado = await resposta.json();
-
-    alert(resultado.mensagem);
-
-    if (resultado.sucesso) {
-        window.location.href = "professor.html";
-    }
 }
