@@ -1,44 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Portal Universitário</title>
-
     <link rel="stylesheet" href="style.css">
-
 </head>
+<body class="login-page">
 
-<body>
-
-    <div class="login-box">
-
+    <div class="login-card">
         <h1>Portal Universitário</h1>
+        <p>Acesse usando sua matrícula e senha.</p>
 
-        <input
-            type="text"
-            id="matricula"
-            placeholder="Digite sua matrícula"
-        >
+        <input type="text" id="matricula" placeholder="Matrícula">
+        <input type="password" id="senha" placeholder="Senha">
 
-        <input
-            type="password"
-            id="senha"
-            placeholder="Digite sua senha"
-        >
-
-        <button onclick="fazerLogin()">
-            Entrar
-        </button>
+        <button onclick="fazerLogin()">Entrar</button>
 
         <p id="mensagem"></p>
-
     </div>
 
     <script src="script.js"></script>
-
 </body>
 </html>

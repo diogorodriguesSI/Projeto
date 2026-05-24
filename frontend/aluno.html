@@ -1,45 +1,30 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-
     <meta charset="UTF-8">
-
     <title>Área do Aluno</title>
-
     <link rel="stylesheet" href="style.css">
-
 </head>
-
 <body>
 
-    <div class="login-box">
-
+<header>
+    <div>
         <h1>Área do Aluno</h1>
-
-        <h2 id="nome"></h2>
-
-        <p id="periodo"></p>
-
+        <p id="dadosAluno"></p>
     </div>
+    <button onclick="sair()">Sair</button>
+</header>
 
-    <script>
+<main class="container">
+    <section class="card">
+        <h2>Trabalhos disponíveis</h2>
+        <p>Você só verá trabalhos do seu próprio período.</p>
 
-        // - Pega usuário salvo
-        const usuario =
-            JSON.parse(localStorage.getItem("usuario"))
+        <div id="listaTrabalhos"></div>
+    </section>
+</main>
 
-        // - Mostra nome
-        document.getElementById("nome")
-        .innerText =
-        usuario.nome
-
-        // - Mostra período
-        document.getElementById("periodo")
-        .innerText =
-        "Período: " + usuario.periodo
-        
-
-    </script>
-
+<script src="script.js"></script>
+<script src="aluno.js"></script>
 </body>
 </html>

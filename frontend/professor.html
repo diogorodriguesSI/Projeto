@@ -1,37 +1,83 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-
     <meta charset="UTF-8">
-
     <title>Área do Professor</title>
-
     <link rel="stylesheet" href="style.css">
-
 </head>
-
 <body>
 
-    <div class="login-box">
-
+<header>
+    <div>
         <h1>Área do Professor</h1>
-
-        <h2 id="nome"></h2>
-
+        <p id="nomeProfessor"></p>
     </div>
+    <button onclick="sair()">Sair</button>
+</header>
 
-    <script>
+<main class="container">
 
-        // - Pega professor salvo
-        const usuario =
-            JSON.parse(localStorage.getItem("usuario"))
+    <section class="card">
+        <h2>Criar Trabalho</h2>
 
-        // - Mostra nome
-        document.getElementById("nome")
-        .innerText =
-        usuario.nome
+        <label>Matéria</label>
+        <select id="materia"></select>
 
-    </script>
+        <label>Título do trabalho</label>
+        <input type="text" id="titulo" placeholder="Ex: Trabalho sobre Banco de Dados">
 
+        <div class="grid">
+            <div>
+                <label>Data de início</label>
+                <input type="date" id="dataInicio">
+            </div>
+
+            <div>
+                <label>Data final</label>
+                <input type="date" id="dataFim">
+            </div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <label>Quantidade de grupos</label>
+                <input type="number" id="quantidadeGrupos" value="4" min="1">
+            </div>
+
+            <div>
+                <label>Máximo de alunos por grupo</label>
+                <input type="number" id="limiteParticipantes" value="5" min="1">
+            </div>
+        </div>
+
+        <label>
+            <input type="checkbox" id="usarSenha">
+            Usar senha para entrar no grupo
+        </label>
+
+        <label>Senha dos grupos</label>
+        <input type="text" id="senhaGrupo" placeholder="Deixe vazio se não quiser senha">
+
+        <label>Temas dos grupos</label>
+        <textarea id="temas" rows="6" placeholder="Digite um tema por linha. Ex:
+Grupo 1 - Banco de Dados
+Grupo 2 - Sistema Web
+Grupo 3 - Segurança
+Grupo 4 - Redes"></textarea>
+
+        <button onclick="criarTrabalho()">Criar trabalho</button>
+
+        <p id="mensagem"></p>
+    </section>
+
+    <section class="card">
+        <h2>Trabalhos Criados</h2>
+        <div id="listaTrabalhos"></div>
+    </section>
+
+</main>
+
+<script src="script.js"></script>
+<script src="professor.js"></script>
 </body>
 </html>
