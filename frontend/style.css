@@ -173,3 +173,366 @@ button:hover {
         width: 90%;
     }
 }
+
+
+
+
+
+.login-page {
+    min-height: 100vh;
+    background: #002349;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.login-container {
+    width: 100%;
+    max-width: 430px;
+    padding: 32px;
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.login-logo h1 {
+    font-size: 48px;
+    color: white;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.login-logo p {
+    margin-top: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+.login-card {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+}
+
+.login-card h2 {
+    text-align: center;
+    color: #002349;
+    font-size: 26px;
+    margin-bottom: 32px;
+    font-weight: 500;
+}
+
+.login-card label {
+    display: block;
+    color: #002349;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.input-area {
+    position: relative;
+    margin-bottom: 22px;
+}
+
+.input-area span {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.55;
+}
+
+.input-area input {
+    width: 100%;
+    padding: 14px 14px 14px 45px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+}
+
+.input-area input:focus {
+    border-color: #002349;
+}
+
+.login-card button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #002349;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 6px;
+}
+
+.login-card button:hover {
+    opacity: 0.9;
+}
+
+#mensagem {
+    margin-top: 18px;
+    text-align: center;
+    color: red;
+    font-weight: 600;
+}
+
+footer {
+    text-align: center;
+    margin-top: 32px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+}
+
+
+.professor-page {
+    background: #f9fafb;
+    min-height: 100vh;
+}
+
+.prof-header {
+    background: #2563eb;
+    color: white;
+    padding: 18px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.prof-header h1 {
+    font-size: 28px;
+}
+
+.prof-header p {
+    color: #dbeafe;
+    margin-top: 4px;
+}
+
+.btn-sair {
+    background: #1d4ed8;
+    color: white;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-sair:hover {
+    background: #1e40af;
+}
+
+.prof-container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+.prof-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+.prof-card h2 {
+    font-size: 28px;
+    margin-bottom: 26px;
+    color: #1f2937;
+}
+
+.prof-card label {
+    display: block;
+    margin: 18px 0 8px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.prof-card input,
+.prof-card select,
+.prof-card textarea {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    outline: none;
+    font-size: 15px;
+    background: white;
+}
+
+.prof-card input:focus,
+.prof-card select:focus,
+.prof-card textarea:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.prof-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.checkbox-line {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-line input {
+    width: 18px;
+}
+
+.grupo-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 28px 0 16px;
+}
+
+.grupo-topo h3 {
+    font-size: 22px;
+}
+
+.grupo-topo button {
+    background: #16a34a;
+    color: white;
+    border: none;
+    padding: 11px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.grupo-topo button:hover {
+    background: #15803d;
+}
+
+.empty-box {
+    background: #f9fafb;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.grupo-form {
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 18px;
+}
+
+.grupo-form-header {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.grupo-form-header input {
+    font-weight: 700;
+    font-size: 18px;
+    background: transparent;
+}
+
+.grupo-form-header button {
+    background: #fee2e2;
+    color: #dc2626;
+    border: none;
+    padding: 10px 13px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.btn-criar {
+    width: 100%;
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 24px;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.btn-criar:hover {
+    background: #1d4ed8;
+}
+
+.trabalho-card {
+    border: 1px solid #d1d5db;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 18px;
+    transition: 0.2s;
+}
+
+.trabalho-card:hover {
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.1);
+}
+
+.trabalho-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.trabalho-header h3 {
+    font-size: 22px;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.trabalho-header button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.trabalho-info {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    color: #4b5563;
+}
+
+#mensagem {
+    margin-top: 16px;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+@media (max-width: 750px) {
+    .prof-header {
+        flex-direction: column;
+        gap: 14px;
+        text-align: center;
+    }
+
+    .prof-grid,
+    .trabalho-info {
+        grid-template-columns: 1fr;
+    }
+
+    .trabalho-header,
+    .grupo-topo {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
