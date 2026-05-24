@@ -5,74 +5,86 @@
     <title>Área do Professor</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="professor-page">
 
-<header>
+<header class="prof-header">
     <div>
         <h1>Área do Professor</h1>
         <p id="nomeProfessor"></p>
     </div>
-    <button onclick="sair()">Sair</button>
+
+    <button class="btn-sair" onclick="sair()">
+        Sair
+    </button>
 </header>
 
-<main class="container">
+<main class="prof-container">
 
-    <section class="card">
-        <h2>Criar Trabalho</h2>
+    <section class="prof-card">
+        <h2>📄 Criar Trabalho</h2>
 
-        <label>Matéria</label>
+        <label>Matéria *</label>
         <select id="materia"></select>
 
-        <label>Título do trabalho</label>
-        <input type="text" id="titulo" placeholder="Ex: Trabalho sobre Banco de Dados">
+        <label>Título do Trabalho *</label>
+        <input
+            type="text"
+            id="titulo"
+            placeholder="Digite o título do trabalho"
+        >
 
-        <div class="grid">
+        <div class="prof-grid">
             <div>
-                <label>Data de início</label>
+                <label>Data de Início *</label>
                 <input type="date" id="dataInicio">
             </div>
 
             <div>
-                <label>Data final</label>
+                <label>Data Final *</label>
                 <input type="date" id="dataFim">
             </div>
         </div>
 
-        <div class="grid">
-            <div>
-                <label>Quantidade de grupos</label>
-                <input type="number" id="quantidadeGrupos" value="4" min="1">
-            </div>
-
-            <div>
-                <label>Máximo de alunos por grupo</label>
-                <input type="number" id="limiteParticipantes" value="5" min="1">
-            </div>
-        </div>
-
-        <label>
+        <label class="checkbox-line">
             <input type="checkbox" id="usarSenha">
-            Usar senha para entrar no grupo
+            Definir senha para os grupos
         </label>
 
         <label>Senha dos grupos</label>
-        <input type="text" id="senhaGrupo" placeholder="Deixe vazio se não quiser senha">
+        <input
+            type="text"
+            id="senhaGrupo"
+            placeholder="Digite a senha dos grupos"
+        >
 
-        <label>Temas dos grupos</label>
-        <textarea id="temas" rows="6" placeholder="Digite um tema por linha. Ex:
-Grupo 1 - Banco de Dados
-Grupo 2 - Sistema Web
-Grupo 3 - Segurança
-Grupo 4 - Redes"></textarea>
+        <div class="grupo-topo">
+            <h3>👥 Grupos</h3>
+            <button type="button" onclick="adicionarGrupoVisual()">
+                + Adicionar Grupo
+            </button>
+        </div>
 
-        <button onclick="criarTrabalho()">Criar trabalho</button>
+        <div id="gruposProfessor" class="grupos-area">
+            <p class="empty-box">
+                Nenhum grupo adicionado. Clique em "Adicionar Grupo" para começar.
+            </p>
+        </div>
+
+        <button class="btn-criar" onclick="criarTrabalho()">
+            Criar Trabalho
+        </button>
 
         <p id="mensagem"></p>
     </section>
 
-    <section class="card">
-        <h2>Trabalhos Criados</h2>
-        <div id="listaTrabalhos"></div>
+    <section class="prof-card">
+        <h2>📄 Trabalhos Criados</h2>
+
+        <div id="listaTrabalhos">
+            <div class="empty-box">
+                Nenhum trabalho criado ainda.
+            </div>
+        </div>
     </section>
 
 </main>

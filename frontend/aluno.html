@@ -5,24 +5,85 @@
     <title>Área do Aluno</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="aluno-page">
 
-<header>
+<header class="aluno-header">
     <div>
         <h1>Área do Aluno</h1>
         <p id="dadosAluno"></p>
     </div>
-    <button onclick="sair()">Sair</button>
+
+    <button class="btn-sair" onclick="sair()">Sair</button>
 </header>
 
-<main class="container">
-    <section class="card">
-        <h2>Trabalhos disponíveis</h2>
-        <p>Você só verá trabalhos do seu próprio período.</p>
+<main class="aluno-container">
+    <section class="aluno-card">
+        <h2>Trabalhos Disponíveis</h2>
+        <p class="aluno-subtitle">
+            Você verá apenas os trabalhos do seu período.
+        </p>
 
-        <div id="listaTrabalhos"></div>
+        <div id="listaTrabalhosAluno"></div>
     </section>
 </main>
+
+<!-- MODAL DE DETALHES -->
+<div id="modalDetalhes" class="modal escondido">
+    <div class="modal-content grande">
+        <div class="modal-header">
+            <div>
+                <h2 id="modalTitulo"></h2>
+                <p id="modalMateria"></p>
+            </div>
+
+            <button
+                class="btn-fechar-modal"
+                type="button"
+                onclick="fecharDetalhes()"
+            >
+                ✕
+            </button>
+        </div>
+
+        <div id="modalCorpo"></div>
+    </div>
+</div>
+
+<!-- MODAL DE INSCRIÇÃO -->
+<div id="modalInscricao" class="modal escondido">
+    <div class="modal-content pequeno">
+        <div class="modal-header azul">
+            <div>
+                <h2>Inscrever-se no Grupo</h2>
+                <p id="modalGrupoNome"></p>
+            </div>
+
+            <button
+                class="btn-fechar-modal"
+                type="button"
+                onclick="fecharInscricao()"
+            >
+                ✕
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div id="campoSenhaGrupo"></div>
+
+            <div class="info-grupo-modal" id="infoGrupoModal"></div>
+
+            <div class="modal-actions">
+                <button class="btn-cancelar" onclick="fecharInscricao()">
+                    Cancelar
+                </button>
+
+                <button class="btn-confirmar" onclick="confirmarInscricao()">
+                    Confirmar Inscrição
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="script.js"></script>
 <script src="aluno.js"></script>

@@ -2,23 +2,57 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Portal Universitário</title>
+    <title>GroupFlow</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-page">
 
-    <div class="login-card">
-        <h1>Portal Universitário</h1>
-        <p>Acesse usando sua matrícula e senha.</p>
+    <main class="login-container">
 
-        <input type="text" id="matricula" placeholder="Matrícula">
-        <input type="password" id="senha" placeholder="Senha">
+        <div class="login-logo">
+            <h1>GroupFlow</h1>
+            <p>Equipes de Trabalhos</p>
+        </div>
 
-        <button onclick="fazerLogin()">Entrar</button>
+        <section class="login-card">
 
-        <p id="mensagem"></p>
-    </div>
+            <h2>Acesso ao Sistema</h2>
+
+            <label for="matricula">Matrícula</label>
+            <div class="input-area">
+                <span>👤</span>
+                <input
+                    type="text"
+                    id="matricula"
+                    placeholder="Digite sua matrícula"
+                >
+            </div>
+
+            <label for="senha">Senha</label>
+            <div class="input-area">
+                <span>🔒</span>
+                <input
+                    type="password"
+                    id="senha"
+                    placeholder="Digite sua senha"
+                >
+            </div>
+
+            <button onclick="fazerLogin()">
+                ↪ Entrar
+            </button>
+
+            <p id="mensagem"></p>
+
+        </section>
+
+        <footer>
+            © 2026 GroupFlow. Todos os direitos reservados.
+        </footer>
+
+    </main>
 
     <script src="script.js"></script>
 </body>
 </html>
+
