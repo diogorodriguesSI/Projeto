@@ -11,24 +11,39 @@ from .views import (
     remover_aluno_grupo,
     excluir_grupo,
     excluir_trabalho,
+    editar_trabalho,
     adicionar_grupo,
+    editar_grupo,
     atualizar_funcoes_grupo,
     atualizar_minha_participacao,
+    lancar_nota,
+    adicionar_mensagem_grupo,
 )
 
 urlpatterns = [
     path("login/", login),
+
     path("criar-trabalho/", criar_trabalho),
     path("trabalhos/", listar_trabalhos),
+    path("trabalho/<int:trabalho_id>/", detalhes_trabalho),
+
     path("entrar-grupo/", entrar_grupo),
     path("sair-grupo/", sair_grupo),
+
+    path("adicionar-grupo/", adicionar_grupo),
+    path("editar-grupo/", editar_grupo),
     path("excluir-grupo/", excluir_grupo),
 
-    path("trabalho/<int:trabalho_id>/", detalhes_trabalho),
     path("atualizar-participacao/", atualizar_participacao),
-    path("remover-aluno-grupo/", remover_aluno_grupo),
-    path("excluir-trabalho/", excluir_trabalho),
-    path("adicionar-grupo/", adicionar_grupo),
-    path("atualizar-funcoes-grupo/", atualizar_funcoes_grupo),
     path("atualizar-minha-participacao/", atualizar_minha_participacao),
+    path("atualizar-funcoes-grupo/", atualizar_funcoes_grupo),
+
+    path("remover-aluno-grupo/", remover_aluno_grupo),
+
+    path("lancar-nota/", lancar_nota),
+
+    path("editar-trabalho/", editar_trabalho),
+    path("excluir-trabalho/", excluir_trabalho),
+
+    path("adicionar-mensagem-grupo/", adicionar_mensagem_grupo),
 ]

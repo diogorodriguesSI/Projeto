@@ -2,57 +2,74 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>GroupFlow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GroupFlow - Login</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-page">
 
-    <main class="login-container">
-
-        <div class="login-logo">
+    <div class="login-left">
+        <div>
             <h1>GroupFlow</h1>
-            <p>Equipes de Trabalhos</p>
+            <p>A plataforma definitiva para gerenciar equipes acadêmicas, facilitar a comunicação e organizar as entregas dos seus trabalhos universitários.</p>
+            
+            <div class="features">
+                <div class="feature-item">
+                    <span>✅</span> Organização de grupos e temas
+                </div>
+                <div class="feature-item">
+                    <span>✅</span> Mural de recados em tempo real
+                </div>
+                <div class="feature-item">
+                    <span>✅</span> Distribuição de funções e notas
+                </div>
+            </div>
         </div>
+    </div>
 
-        <section class="login-card">
-
-            <h2>Acesso ao Sistema</h2>
-
-            <label for="matricula">Matrícula</label>
-            <div class="input-area">
-                <span>👤</span>
-                <input
-                    type="text"
-                    id="matricula"
-                    placeholder="Digite sua matrícula"
-                >
+    <div class="login-right">
+        <main class="login-wrapper">
+            
+            <div class="login-header">
+                <h2>Acesso ao Sistema</h2>
+                <p>Bem-vindo de volta! Insira suas credenciais.</p>
             </div>
 
-            <label for="senha">Senha</label>
-            <div class="input-area">
-                <span>🔒</span>
-                <input
-                    type="password"
-                    id="senha"
-                    placeholder="Digite sua senha"
-                >
-            </div>
+            <section class="login-card">
+                <div class="form-group">
+                    <label for="matricula">Matrícula</label>
+                    <span class="input-icon">👤</span>
+                    <input
+                        type="text"
+                        id="matricula"
+                        placeholder="Ex: 2023001"
+                    >
+                </div>
 
-            <button onclick="fazerLogin()">
-                ↪ Entrar
-            </button>
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <span class="input-icon">🔒</span>
+                    <input
+                        type="password"
+                        id="senha"
+                        placeholder="••••••••"
+                    >
+                </div>
 
-            <p id="mensagem"></p>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 16px; padding: 14px; font-size: 16px;" onclick="fazerLogin()">
+                    Entrar no Painel
+                </button>
 
-        </section>
+                <p id="mensagem"></p>
+            </section>
 
-        <footer>
-            © 2026 GroupFlow. Todos os direitos reservados.
-        </footer>
+            <footer class="login-footer">
+                © 2026 GroupFlow. Todos os direitos reservados.
+            </footer>
 
-    </main>
+        </main>
+    </div>
 
     <script src="script.js"></script>
 </body>
 </html>
-

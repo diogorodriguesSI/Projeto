@@ -46,13 +46,13 @@ async function carregarTrabalhosAluno() {
         divMateria.innerHTML = `
             <button type="button" class="materia-header" onclick="alternarMateria(this)">
                 <div>
-                    <span class="seta">▶</span>
+                    <span class="seta">▼</span>
                     <strong>${materia}</strong>
                     <span class="badge">${materias[materia].length} trabalho(s)</span>
                 </div>
             </button>
 
-            <div class="materia-conteudo escondido">
+            <div class="materia-conteudo">
                 ${materias[materia].map(trabalho => montarTrabalhoHTML(trabalho)).join("")}
             </div>
         `;
@@ -62,58 +62,61 @@ async function carregarTrabalhosAluno() {
 }
 
 function montarTrabalhoHTML(trabalho) {
-    return `
-        <div class="aluno-trabalho-card">
-            <div class="aluno-trabalho-topo">
-                <div>
-                    <h3>${trabalho.titulo}</h3>
-                    <p class="descricao">Trabalho criado pelo professor ${trabalho.professorNome}</p>
-                    <p class="professor">
-                        <strong>Professor:</strong> ${trabalho.professorNome}
-                    </p>
+    try {
+        return `
+            <div style="border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; background: var(--bg-color);">
+                <div class="flex-between mb-3">
+                    <div>
+                        <h3 style="font-size: 20px;">${trabalho.titulo}</h3>
+                        <p style="color: var(--text-muted); font-size: 14px;">Criado por: <strong>${trabalho.professorNome}</strong></p>
+                    </div>
+
+                    <button type="button" class="btn btn-primary" onclick="abrirDetalhes(${trabalho.id})">
+                        Ver Detalhes
+                    </button>
                 </div>
 
-                <button type="button" onclick="abrirDetalhes(${trabalho.id})">
-                    👁 Ver Detalhes
-                </button>
+                <div class="info-grid">
+                    <div class="info-box">
+                        <span>Início</span>
+                        <strong>${formatarData(trabalho.dataInicio)}</strong>
+                    </div>
+
+                    <div class="info-box">
+                        <span>Término</span>
+                        <strong>${formatarData(trabalho.dataFim)}</strong>
+                    </div>
+
+                    <div class="info-box">
+                        <span>Grupos</span>
+                        <strong>${trabalho.grupos.length} disponível(is)</strong>
+                    </div>
+                </div>
+
+                <h4 class="mt-3 mb-3">Grupos disponíveis</h4>
+
+                <div class="flex-column" style="gap: 24px;">
+                    ${trabalho.grupos.map(grupo => montarGrupoHTML(trabalho, grupo)).join("")}
+                </div>
             </div>
-
-            <div class="aluno-info-grid">
-                <div>
-                    <span>📅 Início</span>
-                    <strong>${formatarData(trabalho.dataInicio)}</strong>
-                </div>
-
-                <div>
-                    <span>📅 Término</span>
-                    <strong>${formatarData(trabalho.dataFim)}</strong>
-                </div>
-
-                <div>
-                    <span>👥 Grupos</span>
-                    <strong>${trabalho.grupos.length} disponível(is)</strong>
-                </div>
-            </div>
-
-            <h4>Grupos Disponíveis:</h4>
-
-            <div class="aluno-grupos-grid">
-                ${trabalho.grupos.map(grupo => montarGrupoHTML(trabalho, grupo)).join("")}
-            </div>
-        </div>
-    `;
+        `;
+    } catch (e) {
+        console.error("Erro no montarTrabalhoHTML:", e);
+        return `<div class="empty-box">Erro ao carregar o trabalho: ${e.message}</div>`;
+    }
 }
 
 function montarGrupoHTML(trabalho, grupo) {
-    const ocupados = grupo.alunos.length;
-    const limite = grupo.limiteParticipantes;
+    try {
+        const ocupados = grupo.alunos.length;
+        const limite = grupo.limiteParticipantes;
     const livres = limite - ocupados;
     const lotado = livres <= 0;
 
-    const alunoEstaNesteGrupo = grupo.alunos.some(a => a.id === aluno.id);
+    const alunoNoGrupo = grupo.alunos.find(a => Number(a.id) === Number(aluno.id));
 
     const alunoEstaEmOutroGrupoDoTrabalho = trabalho.grupos.some(
-        g => g.alunos.some(a => a.id === aluno.id)
+        g => g.alunos.some(a => Number(a.id) === Number(aluno.id))
     );
 
     let statusClasse = "status-verde";
@@ -126,11 +129,12 @@ function montarGrupoHTML(trabalho, grupo) {
 
     let botao = "";
 
-    if (alunoEstaNesteGrupo) {
+    if (alunoNoGrupo) {
         botao = `
             <button
                 type="button"
-                class="btn-sair-grupo"
+                class="btn btn-danger"
+                style="padding: 14px 24px; font-size: 16px;"
                 onclick="sairGrupo(${grupo.id})"
             >
                 Sair deste grupo
@@ -138,7 +142,7 @@ function montarGrupoHTML(trabalho, grupo) {
         `;
     } else if (alunoEstaEmOutroGrupoDoTrabalho) {
         botao = `
-            <button type="button" disabled>
+            <button type="button" class="btn btn-outline" disabled style="padding: 14px 24px; font-size: 16px;">
                 Já inscrito
             </button>
         `;
@@ -146,44 +150,44 @@ function montarGrupoHTML(trabalho, grupo) {
         botao = `
             <button
                 type="button"
+                class="btn ${lotado ? 'btn-secondary' : 'btn-primary'}"
                 ${lotado ? "disabled" : ""}
+                style="padding: 14px 24px; font-size: 16px;"
                 onclick="abrirInscricao(${trabalho.id}, ${grupo.id})"
             >
-                ${lotado ? "Lotado" : "Inscrever"}
+                ${lotado ? "Lotado" : "Inscrever-se"}
             </button>
         `;
     }
 
     return `
-        <div class="aluno-grupo-card ${lotado ? "lotado" : ""}">
-            <div class="grupo-card-topo">
+        <div class="grupo-card-aluno ${lotado ? 'lotado' : ''}">
+            <div class="flex-between mb-3" style="align-items: flex-start;">
                 <div>
-                    <h5>${grupo.nome}</h5>
+                    <h5 style="font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">${grupo.nome}</h5>
 
-                    <div class="grupo-tags">
-                        ${trabalho.usarSenha ? `<span class="tag-lock">🔒 Protegido</span>` : ""}
+                    <div class="tags-container">
+                        ${grupo.protegido ? `<span class="badge badge-warning" style="font-size: 14px;">🔒 Protegido</span>` : ""}
 
-                        <span class="${statusClasse}">
+                        <span class="badge badge-${lotado ? 'danger' : 'success'}" style="font-size: 14px;">
                             ${lotado ? "Cheio" : `${livres} vaga(s)`}
                         </span>
 
-                        ${alunoEstaNesteGrupo ? `
-                            <span class="status-inscrito">
+                        ${alunoNoGrupo ? `
+                            <span class="badge badge-primary" style="font-size: 14px;">
                                 Você está neste grupo
                             </span>
                         ` : ""}
-
-                        ${alunoEstaNesteGrupo ? montarAreaAlunoGrupo(grupo) : ""}
                     </div>
                 </div>
 
                 ${botao}
             </div>
 
-            <p><strong>Tema:</strong> ${grupo.tema}</p>
-            <p><strong>Participantes:</strong> ${ocupados}/${limite}</p>
+            <p style="font-size: 16px; margin-bottom: 8px;"><strong>Tema:</strong> ${grupo.tema}</p>
+            <p style="font-size: 16px; margin-bottom: 8px;"><strong>Participantes:</strong> ${ocupados}/${limite}</p>
 
-            <p class="alunos-lista">
+            <p style="color: var(--text-muted); font-size: 15px; margin-top: 16px;">
                 <strong>Alunos:</strong>
                 ${
                     grupo.alunos.length > 0
@@ -191,6 +195,75 @@ function montarGrupoHTML(trabalho, grupo) {
                     : "Nenhum aluno ainda"
                 }
             </p>
+
+            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) + montarMuralHTML(grupo, 'main') : ""}
+        </div>
+    `;
+    } catch (e) {
+        console.error("Erro no montarGrupoHTML:", e);
+        return `<div class="empty-box">Erro ao carregar grupo: ${e.message}</div>`;
+    }
+}
+
+function montarAreaAlunoGrupo(grupo, alunoNoGrupo) {
+    const funcoes = grupo.funcoesDisponiveis
+        ? grupo.funcoesDisponiveis
+            .split("\n")
+            .map(f => f.trim())
+            .filter(f => f !== "")
+        : [];
+
+    return `
+        <div class="area-participacao-premium">
+            <h4>🌟 Minha Participação</h4>
+
+            <div class="nota-destaque">
+                <span class="nota-destaque-title">Sua Nota Oficial</span>
+                <span class="nota-destaque-value">${alunoNoGrupo.nota || "-"}</span>
+            </div>
+
+            ${
+                alunoNoGrupo.observacao
+                ? `<div style="background: #fff; padding: 16px; border-left: 4px solid var(--primary); border-radius: 8px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+                       <strong style="display: block; color: var(--primary); margin-bottom: 4px; font-size: 14px; text-transform: uppercase;">Feedback do Professor:</strong>
+                       <span style="color: var(--text-main); font-size: 16px;">${alunoNoGrupo.observacao}</span>
+                   </div>`
+                : ""
+            }
+
+            <div class="form-group">
+                <label style="font-size: 16px;">Qual será sua função?</label>
+                <select id="funcaoAluno-${grupo.id}" style="padding: 16px; font-size: 16px;">
+                    <option value="">Selecione uma função</option>
+                    ${funcoes.map(funcao => `
+                        <option
+                            value="${funcao}"
+                            ${alunoNoGrupo.funcao === funcao ? "selected" : ""}
+                        >
+                            ${funcao}
+                        </option>
+                    `).join("")}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label style="font-size: 16px;">Anotações Particulares</label>
+                <textarea
+                    id="anotacaoAluno-${grupo.id}"
+                    rows="3"
+                    style="padding: 16px; font-size: 16px;"
+                    placeholder="Escreva suas anotações pessoais (só você vê isso)..."
+                >${alunoNoGrupo.anotacaoAluno || ""}</textarea>
+            </div>
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                style="width: 100%; padding: 16px; font-size: 18px; margin-top: 8px;"
+                onclick="salvarMinhaParticipacao(${grupo.id})"
+            >
+                Salvar minhas informações
+            </button>
         </div>
     `;
 }
@@ -204,71 +277,73 @@ function alternarMateria(botao) {
 }
 
 function abrirDetalhes(trabalhoId) {
-    trabalhoSelecionado = todosTrabalhos.find(t => t.id === trabalhoId);
+    trabalhoSelecionado = todosTrabalhos.find(t => Number(t.id) === Number(trabalhoId));
 
     document.getElementById("modalTitulo").innerText = trabalhoSelecionado.titulo;
     document.getElementById("modalMateria").innerText =
         `${trabalhoSelecionado.materia} - ${trabalhoSelecionado.professorNome}`;
 
     document.getElementById("modalCorpo").innerHTML = `
-        <div class="detalhe-bloco">
-            <h3>Descrição</h3>
-            <p>Trabalho criado pelo professor ${trabalhoSelecionado.professorNome}.</p>
+        <div class="mb-3">
+            <h3 style="font-size: 18px; margin-bottom: 8px;">Descrição</h3>
+            <p>Trabalho criado pelo professor <strong>${trabalhoSelecionado.professorNome}</strong>.</p>
         </div>
 
-        <div class="aluno-info-grid">
-            <div>
+        <div class="info-grid">
+            <div class="info-box">
                 <span>Data de Início</span>
                 <strong>${formatarData(trabalhoSelecionado.dataInicio)}</strong>
             </div>
 
-            <div>
+            <div class="info-box">
                 <span>Data Final</span>
                 <strong>${formatarData(trabalhoSelecionado.dataFim)}</strong>
             </div>
 
-            <div>
-                <span>Quantidade de Grupos</span>
+            <div class="info-box">
+                <span>Total de Grupos</span>
                 <strong>${trabalhoSelecionado.grupos.length}</strong>
             </div>
         </div>
 
-        <h3>Grupos (${trabalhoSelecionado.grupos.length})</h3>
+        <h3 class="mt-3 mb-3">Grupos (${trabalhoSelecionado.grupos.length})</h3>
 
-        ${trabalhoSelecionado.grupos.map(grupo => montarDetalheGrupoHTML(grupo)).join("")}
+        <div class="flex-column">
+            ${trabalhoSelecionado.grupos.map(grupo => montarDetalheGrupoHTML(grupo)).join("")}
+        </div>
     `;
 
     document.getElementById("modalDetalhes").classList.remove("escondido");
 }
 
 function montarDetalheGrupoHTML(grupo) {
-    const ocupados = grupo.alunos.length;
-    const limite = grupo.limiteParticipantes;
+    try {
+        const ocupados = grupo.alunos.length;
+        const limite = grupo.limiteParticipantes;
     const livres = limite - ocupados;
     const lotado = livres <= 0;
 
-    const alunoEstaNesteGrupo = grupo.alunos.some(a => a.id === aluno.id);
+    const alunoNoGrupo = grupo.alunos.find(a => Number(a.id) === Number(aluno.id));
 
     const alunoEstaEmOutroGrupoDoTrabalho = trabalhoSelecionado.grupos.some(
-        g => g.alunos.some(a => a.id === aluno.id)
+        g => g.alunos.some(a => Number(a.id) === Number(aluno.id))
     );
 
     let botao = "";
 
-    if (alunoEstaNesteGrupo) {
+    if (alunoNoGrupo) {
         botao = `
             <button
                 type="button"
-                class="btn-sair-grupo"
+                class="btn btn-danger"
                 onclick="sairGrupo(${grupo.id})"
             >
                 Sair deste grupo
             </button>
         `;
-        
     } else if (alunoEstaEmOutroGrupoDoTrabalho) {
         botao = `
-            <button type="button" disabled>
+            <button type="button" class="btn btn-outline" disabled>
                 Já inscrito
             </button>
         `;
@@ -276,6 +351,7 @@ function montarDetalheGrupoHTML(grupo) {
         botao = `
             <button
                 type="button"
+                class="btn ${lotado ? 'btn-secondary' : 'btn-primary'}"
                 ${lotado ? "disabled" : ""}
                 onclick="abrirInscricao(${trabalhoSelecionado.id}, ${grupo.id})"
             >
@@ -285,17 +361,19 @@ function montarDetalheGrupoHTML(grupo) {
     }
 
     return `
-        <div class="detalhe-grupo">
-            <div class="grupo-card-topo">
+        <div style="background: var(--bg-color); border: 1px solid var(--border-color); padding: 20px; border-radius: var(--radius-md);">
+            <div class="flex-between mb-3" style="align-items: flex-start;">
                 <div>
-                    <h4>${grupo.nome}</h4>
+                    <h4 style="font-size: 18px;">${grupo.nome}</h4>
+                    
+                    ${grupo.protegido ? `<span class="badge badge-warning mt-3">🔒 Protegido</span>` : ""}
 
-                    <span class="${lotado ? "status-vermelho" : "status-verde"}">
+                    <span class="badge badge-${lotado ? 'danger' : 'success'} mt-3">
                         ${lotado ? "Cheio" : `${livres} vaga(s)`}
                     </span>
 
-                    ${alunoEstaNesteGrupo ? `
-                        <span class="status-inscrito">
+                    ${alunoNoGrupo ? `
+                        <span class="badge badge-primary">
                             Você está neste grupo
                         </span>
                     ` : ""}
@@ -304,15 +382,22 @@ function montarDetalheGrupoHTML(grupo) {
                 ${botao}
             </div>
 
-            <p><strong>Tema:</strong> ${grupo.tema}</p>
-            <p><strong>Participantes:</strong> ${ocupados}/${limite}</p>
-            <p><strong>Alunos:</strong> ${
+            <p style="margin-bottom: 4px;"><strong>Tema:</strong> ${grupo.tema}</p>
+            <p style="margin-bottom: 4px;"><strong>Participantes:</strong> ${ocupados}/${limite}</p>
+
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;"><strong>Alunos:</strong> ${
                 grupo.alunos.length > 0
                 ? grupo.alunos.map(a => a.nome).join(", ")
                 : "Nenhum aluno ainda"
             }</p>
+
+            ${alunoNoGrupo ? montarAreaAlunoGrupo(grupo, alunoNoGrupo) + montarMuralHTML(grupo, 'modal') : ""}
         </div>
     `;
+    } catch (e) {
+        console.error("Erro no montarDetalheGrupoHTML:", e);
+        return `<div class="empty-box">Erro ao carregar detalhes do grupo: ${e.message}</div>`;
+    }
 }
 
 function fecharDetalhes() {
@@ -320,23 +405,40 @@ function fecharDetalhes() {
 }
 
 function abrirInscricao(trabalhoId, grupoId) {
-    trabalhoSelecionado = todosTrabalhos.find(t => t.id === trabalhoId);
-    grupoSelecionado = trabalhoSelecionado.grupos.find(g => g.id === grupoId);
+    trabalhoSelecionado = todosTrabalhos.find(t => Number(t.id) === Number(trabalhoId));
+    grupoSelecionado = trabalhoSelecionado.grupos.find(g => Number(g.id) === Number(grupoId));
 
     const alunoJaInscrito = trabalhoSelecionado.grupos.find(
-        grupo => grupo.alunos.some(a => a.id === aluno.id)
+        grupo => grupo.alunos.some(a => Number(a.id) === Number(aluno.id))
     );
 
     if (alunoJaInscrito) {
-        alert(
-            `Você já está inscrito no grupo.\n\nGrupo atual: ${alunoJaInscrito.nome}\nTema: ${alunoJaInscrito.tema}`
+        mostrarAlerta(
+            `Você já está inscrito no grupo.\n\nGrupo atual: ${alunoJaInscrito.nome}\nTema: ${alunoJaInscrito.tema}`, 'warning'
         );
         return;
     }
 
     document.getElementById("modalGrupoNome").innerText = grupoSelecionado.nome;
 
-    if (trabalhoSelecionado.usarSenha) {
+    const funcoes = grupoSelecionado.funcoesDisponiveis
+        ? grupoSelecionado.funcoesDisponiveis
+            .split("\n")
+            .map(f => f.trim())
+            .filter(f => f !== "")
+        : [];
+
+    document.getElementById("campoFuncaoGrupo").innerHTML = `
+        <label>Função no grupo</label>
+        <select id="funcaoGrupoAluno">
+            <option value="">Selecione sua função</option>
+            ${funcoes.map(funcao => `
+                <option value="${funcao}">${funcao}</option>
+            `).join("")}
+        </select>
+    `;
+
+    if (grupoSelecionado.protegido) {
         document.getElementById("campoSenhaGrupo").innerHTML = `
             <label>🔒 Senha do Grupo</label>
             <input
@@ -365,8 +467,15 @@ function fecharInscricao() {
 async function confirmarInscricao() {
     let senha = "";
 
-    if (trabalhoSelecionado.usarSenha) {
+    if (grupoSelecionado.protegido) {
         senha = document.getElementById("senhaGrupoAluno").value;
+    }
+
+    const funcao = document.getElementById("funcaoGrupoAluno").value;
+
+    if (!funcao) {
+        mostrarAlerta("Escolha sua função no grupo.", 'warning');
+        return;
     }
 
     const resposta = await fetch(`${API}/entrar-grupo/`, {
@@ -377,125 +486,66 @@ async function confirmarInscricao() {
         body: JSON.stringify({
             alunoId: aluno.id,
             grupoId: grupoSelecionado.id,
-            senha: senha
+            senha: senha,
+            funcao: funcao
         })
     });
 
     const resultado = await resposta.json();
 
     if (!resultado.sucesso && resultado.grupo) {
-        alert(
-            `${resultado.mensagem}\n\nGrupo atual: ${resultado.grupo.nome}\nTema: ${resultado.grupo.tema}`
+        mostrarAlerta(
+            `${resultado.mensagem}\n\nGrupo atual: ${resultado.grupo.nome}\nTema: ${resultado.grupo.tema}`, 'error'
         );
         return;
     }
 
-    alert(resultado.mensagem);
+    mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
 
     if (resultado.sucesso) {
-        grupoSelecionado.alunos.push({
-            id: aluno.id,
-            nome: aluno.nome,
-            matricula: aluno.matricula
-        });
-
         fecharInscricao();
+        await carregarTrabalhosAluno();
 
-        abrirDetalhes(trabalhoSelecionado.id);
+        if (trabalhoSelecionado) {
+            abrirDetalhes(trabalhoSelecionado.id);
+        }
     }
 }
 
 async function sairGrupo(grupoId) {
-    const confirmar = confirm("Tem certeza que deseja sair deste grupo?");
+    mostrarConfirmacao(
+        "Sair do Grupo",
+        "Tem certeza que deseja sair deste grupo?",
+        "Sair do Grupo",
+        async () => {
+            const resposta = await fetch(`${API}/sair-grupo/`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    alunoId: aluno.id,
+                    grupoId: grupoId
+                })
+            });
 
-    if (!confirmar) {
-        return;
-    }
+            const resultado = await resposta.json();
 
-    const resposta = await fetch(`${API}/sair-grupo/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            alunoId: aluno.id,
-            grupoId: grupoId
-        })
-    });
+            mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
 
-    const resultado = await resposta.json();
-
-    alert(resultado.mensagem);
-
-    if (resultado.sucesso) {
-        trabalhoSelecionado.grupos.forEach(grupo => {
-            grupo.alunos = grupo.alunos.filter(
-                a => a.id !== aluno.id
-            );
-        });
-
-        abrirDetalhes(trabalhoSelecionado.id);
-    }
-}
-
-function formatarData(data) {
-    if (!data) return "";
-
-    const partes = data.split("-");
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
-carregarTrabalhosAluno();
-
-function montarAreaAlunoGrupo(grupo) {
-    const alunoNoGrupo = grupo.alunos.find(a => a.id === aluno.id);
-
-    const funcoes = grupo.funcoesDisponiveis
-        ? grupo.funcoesDisponiveis.split(",").map(f => f.trim()).filter(f => f !== "")
-        : [];
-
-    return `
-        <div class="area-participacao-aluno">
-            <h4>Minha participação</h4>
-
-            <label>Escolha sua função</label>
-            <select id="funcaoAluno-${grupo.id}">
-                <option value="">Selecione uma função</option>
-                ${funcoes.map(funcao => `
-                    <option value="${funcao}">
-                        ${funcao}
-                    </option>
-                `).join("")}
-            </select>
-
-            <label>Anotações</label>
-            <textarea
-                id="anotacaoAluno-${grupo.id}"
-                rows="3"
-                placeholder="Escreva suas anotações sobre sua parte..."
-            ></textarea>
-
-            <label>Enviar arquivo</label>
-            <input
-                type="file"
-                id="arquivoAluno-${grupo.id}"
-            >
-
-            <button
-                type="button"
-                class="btn-confirmar"
-                onclick="salvarMinhaParticipacao(${grupo.id})"
-            >
-                Salvar minha participação
-            </button>
-        </div>
-    `;
+            if (resultado.sucesso) {
+                await carregarTrabalhosAluno();
+                if (trabalhoSelecionado) {
+                    abrirDetalhes(trabalhoSelecionado.id);
+                }
+            }
+        }
+    );
 }
 
 async function salvarMinhaParticipacao(grupoId) {
     const funcao = document.getElementById(`funcaoAluno-${grupoId}`).value;
     const anotacaoAluno = document.getElementById(`anotacaoAluno-${grupoId}`).value;
-    const arquivoInput = document.getElementById(`arquivoAluno-${grupoId}`);
 
     const formData = new FormData();
 
@@ -504,10 +554,6 @@ async function salvarMinhaParticipacao(grupoId) {
     formData.append("funcao", funcao);
     formData.append("anotacaoAluno", anotacaoAluno);
 
-    if (arquivoInput.files.length > 0) {
-        formData.append("arquivo", arquivoInput.files[0]);
-    }
-
     const resposta = await fetch(`${API}/atualizar-minha-participacao/`, {
         method: "POST",
         body: formData
@@ -515,5 +561,98 @@ async function salvarMinhaParticipacao(grupoId) {
 
     const resultado = await resposta.json();
 
-    alert(resultado.mensagem);
+    mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
+
+    if (resultado.sucesso) {
+        await carregarTrabalhosAluno();
+
+        if (trabalhoSelecionado) {
+            abrirDetalhes(trabalhoSelecionado.id);
+        }
+    }
 }
+
+function montarMuralHTML(grupo, prefixo) {
+    const mensagensHTML = (grupo.mensagens || []).map(m => {
+        let classeBalao = "outra-mensagem";
+        if (Number(m.autorId) === Number(aluno.id)) {
+            classeBalao = "minha-mensagem";
+        } else if (m.autorTipo === "professor") {
+            classeBalao = "mensagem-professor";
+        }
+
+        return `
+            <div class="balao-mensagem ${classeBalao}">
+                <div class="balao-autor">${m.autorNome}</div>
+                <div class="balao-texto">${m.texto.replace(/\n/g, "<br>")}</div>
+                <div class="balao-data">${m.dataCriacao}</div>
+            </div>
+        `;
+    }).join("");
+
+    return `
+        <div class="mural-container mt-4">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: var(--card-bg);">
+                <h4 style="margin: 0;">Mural de Recados do Grupo</h4>
+            </div>
+            <div class="mural-mensagens" id="mural-mensagens-${prefixo}-${grupo.id}">
+                ${grupo.mensagens && grupo.mensagens.length > 0 ? mensagensHTML : '<div class="empty-box" style="margin: auto; border: none; background: transparent;">Nenhuma mensagem ainda.</div>'}
+            </div>
+            <div class="mural-input-area">
+                <input type="text" id="input-mensagem-${prefixo}-${grupo.id}" placeholder="Escreva uma mensagem para o grupo..." onkeypress="if(event.key === 'Enter') enviarMensagemGrupo(${grupo.id}, '${prefixo}')">
+                <button type="button" class="btn btn-primary" onclick="enviarMensagemGrupo(${grupo.id}, '${prefixo}')">Enviar</button>
+            </div>
+        </div>
+    `;
+}
+
+async function enviarMensagemGrupo(grupoId, prefixo = 'main') {
+    const input = document.getElementById(`input-mensagem-${prefixo}-${grupoId}`);
+    const texto = input.value.trim();
+
+    if (!texto) return;
+
+    const resposta = await fetch(`${API}/adicionar-mensagem-grupo/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            grupoId: grupoId,
+            autorId: aluno.id,
+            texto: texto
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    if (resultado.sucesso) {
+        input.value = "";
+        await carregarTrabalhosAluno();
+        if (trabalhoSelecionado) {
+            abrirDetalhes(trabalhoSelecionado.id);
+        }
+        
+        setTimeout(() => {
+            const container = document.getElementById(`mural-mensagens-${prefixo}-${grupoId}`);
+            if (container) container.scrollTop = container.scrollHeight;
+        }, 100);
+    } else {
+        mostrarAlerta(resultado.mensagem, 'error');
+    }
+}
+
+function formatarData(data) {
+    if (!data) return "";
+
+    const dataObj = new Date(data);
+    const dia = String(dataObj.getDate()).padStart(2, '0');
+    const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+    const ano = dataObj.getFullYear();
+    const horas = String(dataObj.getHours()).padStart(2, '0');
+    const minutos = String(dataObj.getMinutes()).padStart(2, '0');
+
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+}
+
+carregarTrabalhosAluno();
