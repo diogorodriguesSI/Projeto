@@ -1,114 +1,106 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GroupFlow - Área do Professor</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="favicon.png?v=2">
 </head>
 
 <body>
 
-<header class="app-header">
-    <div>
-        <h1>Área do Professor</h1>
-        <p id="nomeProfessor">Carregando professor...</p>
-    </div>
-
-    <button class="btn btn-danger" onclick="sair()">Sair</button>
-</header>
-
-<main class="container">
-
-    <section class="card">
-        <h2>📄 Criar Trabalho</h2>
-        <p class="mb-3">Preencha as informações para criar um novo trabalho para seus alunos.</p>
-
-        <div class="form-group">
-            <label for="materia">Matéria *</label>
-            <select id="materia"></select>
+    <header class="app-header">
+        <div>
+            <h1>Área do Professor</h1>
+            <p id="nomeProfessor">Carregando professor...</p>
         </div>
 
-        <div class="form-group">
-            <label for="titulo">Título do Trabalho *</label>
-            <input
-                type="text"
-                id="titulo"
-                placeholder="Ex: Trabalho Prático de Banco de Dados"
-            >
-        </div>
+        <button class="btn btn-danger" onclick="sair()">Sair</button>
+    </header>
 
-        <div class="grid-2 mb-3">
+    <main class="container">
+
+        <section class="card">
+            <h2>📄 Criar Trabalho</h2>
+            <p class="mb-3">Preencha as informações para criar um novo trabalho para seus alunos.</p>
+
             <div class="form-group">
-                <label for="dataInicio">Início (Data e Hora) *</label>
-                <input type="datetime-local" id="dataInicio">
+                <label for="materia">Matéria *</label>
+                <select id="materia"></select>
             </div>
 
             <div class="form-group">
-                <label for="dataFim">Término (Data e Hora) *</label>
-                <input type="datetime-local" id="dataFim">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label class="checkbox-line">
-                <input type="checkbox" id="usarSenha">
-                Usar senha global para proteger a entrada nos grupos
-            </label>
-        </div>
-
-        <div class="form-group">
-            <label for="senhaGrupo">Senha dos grupos</label>
-            <input
-                type="text"
-                id="senhaGrupo"
-                placeholder="Opcional. Deixe em branco se não quiser senha"
-            >
-        </div>
-
-        <div class="flex-between mt-3 mb-3">
-            <div>
-                <h3 style="font-size: 20px;">👥 Grupos do Trabalho</h3>
-                <p>Crie e organize as equipes deste trabalho.</p>
+                <label for="titulo">Título do Trabalho *</label>
+                <input type="text" id="titulo" placeholder="Ex: Trabalho Prático de Banco de Dados">
             </div>
 
-            <button
-                type="button"
-                class="btn btn-secondary"
-                onclick="adicionarGrupoVisual()"
-            >
-                + Adicionar Grupo
+            <div class="grid-2 mb-3">
+                <div class="form-group">
+                    <label for="dataInicio">Início (Data e Hora) *</label>
+                    <input type="datetime-local" id="dataInicio">
+                </div>
+
+                <div class="form-group">
+                    <label for="dataFim">Término (Data e Hora) *</label>
+                    <input type="datetime-local" id="dataFim">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-line">
+                    <input type="checkbox" id="usarSenha">
+                    Usar senha global para proteger a entrada nos grupos
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="senhaGrupo">Senha dos grupos</label>
+                <input type="text" id="senhaGrupo" placeholder="Opcional. Deixe em branco se não quiser senha">
+            </div>
+
+            <div class="flex-between mt-3 mb-3">
+                <div>
+                    <h3 style="font-size: 20px;">👥 Grupos do Trabalho</h3>
+                    <p>Crie e organize as equipes deste trabalho.</p>
+                </div>
+
+                <button type="button" class="btn btn-secondary" onclick="adicionarGrupoVisual()">
+                    + Adicionar Grupo
+                </button>
+            </div>
+
+            <div id="gruposProfessor">
+                <div class="empty-box">
+                    Nenhum grupo adicionado. Clique em “Adicionar Grupo” para começar.
+                </div>
+            </div>
+
+            <button class="btn btn-primary mt-3" style="width: 100%; padding: 16px; font-size: 16px;"
+                onclick="criarTrabalho()">
+                Criar Trabalho e Salvar
             </button>
-        </div>
 
-        <div id="gruposProfessor">
-            <div class="empty-box">
-                Nenhum grupo adicionado. Clique em “Adicionar Grupo” para começar.
+            <p id="mensagem"></p>
+        </section>
+
+        <section class="card">
+            <h2>📚 Meus Trabalhos Criados</h2>
+            <p class="mb-3">Acompanhe os trabalhos e grupos que você gerencia.</p>
+
+            <div id="listaTrabalhos" class="flex-column" style="gap: 24px;">
+                <div class="empty-box" style="grid-column: 1 / -1;">
+                    Nenhum trabalho criado ainda.
+                </div>
             </div>
-        </div>
+        </section>
 
-        <button class="btn btn-primary mt-3" style="width: 100%; padding: 16px; font-size: 16px;" onclick="criarTrabalho()">
-            Criar Trabalho e Salvar
-        </button>
+    </main>
 
-        <p id="mensagem"></p>
-    </section>
-
-    <section class="card">
-        <h2>📚 Meus Trabalhos Criados</h2>
-        <p class="mb-3">Acompanhe os trabalhos e grupos que você gerencia.</p>
-
-        <div id="listaTrabalhos" class="flex-column" style="gap: 24px;">
-            <div class="empty-box" style="grid-column: 1 / -1;">
-                Nenhum trabalho criado ainda.
-            </div>
-        </div>
-    </section>
-
-</main>
-
-<script src="script.js"></script>
-<script src="professor.js"></script>
+    <script src="script.js"></script>
+    <script src="professor.js"></script>
 
 </body>
+
 </html>

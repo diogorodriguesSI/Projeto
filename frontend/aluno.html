@@ -1,103 +1,93 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GroupFlow - Área do Aluno</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="favicon.png?v=2">
 </head>
+
 <body>
 
-<header class="app-header">
-    <div>
-        <h1>Área do Aluno</h1>
-        <p id="dadosAluno"></p>
-    </div>
+    <header class="app-header">
+        <div>
+            <h1>Área do Aluno</h1>
+            <p id="dadosAluno"></p>
+        </div>
 
-    <button type="button" class="btn btn-danger" onclick="sair()">Sair</button>
-</header>
+        <button type="button" class="btn btn-danger" onclick="sair()">Sair</button>
+    </header>
 
-<main class="container">
-    <section class="card">
-        <h2>Trabalhos Disponíveis</h2>
-        <p class="mb-3 text-muted">
-            Você verá apenas os trabalhos do seu período.
-        </p>
+    <main class="container">
+        <section class="card">
+            <h2>Trabalhos Disponíveis</h2>
+            <p class="mb-3 text-muted">
+                Você verá apenas os trabalhos do seu período.
+            </p>
 
-        <div id="listaTrabalhosAluno"></div>
-    </section>
-</main>
+            <div id="listaTrabalhosAluno"></div>
+        </section>
+    </main>
 
-<!-- MODAL DE DETALHES -->
-<div id="modalDetalhes" class="modal-overlay escondido">
-    <div class="modal-content modal-lg">
-        <div class="modal-header">
-            <div>
-                <h2 id="modalTitulo" style="font-size: 24px; color: var(--text-main);"></h2>
-                <p id="modalMateria"></p>
+    <!-- MODAL DE DETALHES -->
+    <div id="modalDetalhes" class="modal-overlay escondido">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalTitulo" style="font-size: 24px; color: var(--text-main);"></h2>
+                    <p id="modalMateria"></p>
+                </div>
+
+                <button type="button" class="btn-icon" onclick="fecharDetalhes()">
+                    ✕
+                </button>
             </div>
 
-            <button
-                type="button"
-                class="btn-icon"
-                onclick="fecharDetalhes()"
-            >
-                ✕
-            </button>
+            <div id="modalCorpo" class="modal-body"></div>
         </div>
-
-        <div id="modalCorpo" class="modal-body"></div>
     </div>
-</div>
 
-<!-- MODAL DE INSCRIÇÃO -->
-<div id="modalInscricao" class="modal-overlay escondido">
-    <div class="modal-content modal-md">
-        <div class="modal-header primary-bg">
-            <div>
-                <h2 style="font-size: 20px;">Inscrever-se no Grupo</h2>
-                <p id="modalGrupoNome"></p>
+    <!-- MODAL DE INSCRIÇÃO -->
+    <div id="modalInscricao" class="modal-overlay escondido">
+        <div class="modal-content modal-md">
+            <div class="modal-header primary-bg">
+                <div>
+                    <h2 style="font-size: 20px;">Inscrever-se no Grupo</h2>
+                    <p id="modalGrupoNome"></p>
+                </div>
+
+                <button type="button" class="btn-icon"
+                    style="color: white; background: transparent; border: 1px solid rgba(255,255,255,0.3);"
+                    onclick="fecharInscricao()">
+                    ✕
+                </button>
             </div>
 
-            <button
-                type="button"
-                class="btn-icon"
-                style="color: white; background: transparent; border: 1px solid rgba(255,255,255,0.3);"
-                onclick="fecharInscricao()"
-            >
-                ✕
-            </button>
-        </div>
+            <div class="modal-body">
+                <div id="campoFuncaoGrupo" class="form-group"></div>
 
-        <div class="modal-body">
-            <div id="campoFuncaoGrupo" class="form-group"></div>
-            
-            <div id="campoSenhaGrupo" class="form-group"></div>
+                <div id="campoSenhaGrupo" class="form-group"></div>
 
-            <div class="mt-3 mb-3" id="infoGrupoModal" style="background: var(--bg-color); padding: 16px; border-radius: var(--radius-md);"></div>
-        </div>
-        
-        <div class="modal-footer">
-            <button
-                type="button"
-                class="btn btn-secondary"
-                onclick="fecharInscricao()"
-            >
-                Cancelar
-            </button>
+                <div class="mt-3 mb-3" id="infoGrupoModal"
+                    style="background: var(--bg-color); padding: 16px; border-radius: var(--radius-md);"></div>
+            </div>
 
-            <button
-                type="button"
-                class="btn btn-primary"
-                onclick="confirmarInscricao()"
-            >
-                Confirmar Inscrição
-            </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="fecharInscricao()">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn btn-primary" onclick="confirmarInscricao()">
+                    Confirmar Inscrição
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="script.js"></script>
-<script src="aluno.js"></script>
+    <script src="script.js"></script>
+    <script src="aluno.js"></script>
 </body>
+
 </html>
