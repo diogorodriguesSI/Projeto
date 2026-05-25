@@ -85,8 +85,8 @@ def trabalho_json(trabalho):
         "materia": trabalho.materia.nome,
         "materiaId": trabalho.materia.id,
         "periodo": trabalho.materia.periodo,
-        "dataInicio": str(trabalho.data_inicio),
-        "dataFim": str(trabalho.data_fim),
+        "dataInicio": trabalho.data_inicio.isoformat() if trabalho.data_inicio else "",
+        "dataFim": trabalho.data_fim.isoformat() if trabalho.data_fim else "",
         "usarSenha": trabalho.usar_senha,
         "grupos": [grupo_json(grupo) for grupo in trabalho.grupos.all()],
     }
@@ -452,6 +452,75 @@ def excluir_grupo(request):
     return resposta({
         "sucesso": True,
         "mensagem": "Grupo excluído com sucesso"
+    })
+
+
+@csrf_exempt
+def editar_trabalho(request):
+    if request.method == "OPTIONS":
+        return resposta({})
+
+    if request.method != "POST":
+        return resposta({"sucesso": False, "mensagem": "Use POST"}, 405)
+
+    dados = json.loads(request.body)
+
+    try:
+        trabalho = Trabalho.objects.get(id=dados.get("trabalhoId"))
+    except Trabalho.DoesNotExist:
+        return resposta({"sucesso": False, "mensagem": "Trabalho não encontrado"}, 404)
+
+    titulo = dados.get("titulo")
+    data_inicio = dados.get("dataInicio")
+    data_fim = dados.get("dataFim")
+
+    if titulo:
+        trabalho.titulo = titulo
+    if data_inicio:
+        trabalho.data_inicio = data_inicio
+    if data_fim:
+        trabalho.data_fim = data_fim
+
+    trabalho.save()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Trabalho editado com sucesso",
+        "trabalho": trabalho_json(trabalho)
+    })
+
+
+@csrf_exempt
+def editar_grupo(request):
+    if request.method == "OPTIONS":
+        return resposta({})
+
+    if request.method != "POST":
+        return resposta({"sucesso": False, "mensagem": "Use POST"}, 405)
+
+    dados = json.loads(request.body)
+
+    try:
+        grupo = Grupo.objects.get(id=dados.get("grupoId"))
+    except Grupo.DoesNotExist:
+        return resposta({"sucesso": False, "mensagem": "Grupo não encontrado"}, 404)
+
+    nome = dados.get("nome")
+    tema = dados.get("tema")
+    limite = dados.get("limiteParticipantes")
+
+    if nome:
+        grupo.nome = nome
+    if tema:
+        grupo.tema = tema
+    if limite:
+        grupo.limite_participantes = int(limite)
+
+    grupo.save()
+
+    return resposta({
+        "sucesso": True,
+        "mensagem": "Grupo editado com sucesso"
     })
 
 

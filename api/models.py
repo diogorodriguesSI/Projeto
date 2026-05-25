@@ -104,10 +104,10 @@ class Trabalho(models.Model):
     )
 
     # Data inicial
-    data_inicio = models.DateField()
+    data_inicio = models.DateTimeField()
 
     # Data final
-    data_fim = models.DateField()
+    data_fim = models.DateTimeField()
 
     # Define se grupo terá senha
     usar_senha = models.BooleanField(

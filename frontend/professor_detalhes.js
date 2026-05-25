@@ -65,6 +65,13 @@ function renderizarGruposDetalhes() {
                     </span>
                     <button
                         type="button"
+                        class="btn btn-outline"
+                        onclick="abrirModalEditarGrupo(${grupo.id})"
+                    >
+                        Editar grupo
+                    </button>
+                    <button
+                        type="button"
                         class="btn btn-danger"
                         onclick="excluirGrupo(${grupo.id})"
                     >
@@ -304,8 +311,14 @@ function pegarIniciais(nome) {
 function formatarData(data) {
     if (!data) return "";
 
-    const partes = data.split("-");
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    const dataObj = new Date(data);
+    const dia = String(dataObj.getDate()).padStart(2, '0');
+    const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+    const ano = dataObj.getFullYear();
+    const horas = String(dataObj.getHours()).padStart(2, '0');
+    const minutos = String(dataObj.getMinutes()).padStart(2, '0');
+
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 }
 
 carregarDetalhesTrabalho();
@@ -477,5 +490,106 @@ async function enviarMensagemGrupo(grupoId) {
         }, 100);
     } else {
         mostrarAlerta(resultado.mensagem, 'error');
+    }
+}
+
+function abrirModalEditarTrabalho() {
+    if (!trabalhoAtual) return;
+    
+    document.getElementById("editTrabalhoTitulo").value = trabalhoAtual.titulo;
+    document.getElementById("editTrabalhoInicio").value = trabalhoAtual.dataInicio.substring(0, 16);
+    document.getElementById("editTrabalhoFim").value = trabalhoAtual.dataFim.substring(0, 16);
+
+    document.getElementById("modalEditarTrabalho").classList.remove("escondido");
+}
+
+function fecharModalEditarTrabalho() {
+    document.getElementById("modalEditarTrabalho").classList.add("escondido");
+}
+
+async function salvarEdicaoTrabalho() {
+    const titulo = document.getElementById("editTrabalhoTitulo").value;
+    const dataInicio = document.getElementById("editTrabalhoInicio").value;
+    const dataFim = document.getElementById("editTrabalhoFim").value;
+
+    if (!titulo || !dataInicio || !dataFim) {
+        mostrarAlerta("Preencha todos os campos do trabalho.", 'warning');
+        return;
+    }
+
+    const dataInicioObj = new Date(dataInicio);
+    const dataFimObj = new Date(dataFim);
+
+    if (dataFimObj <= dataInicioObj) {
+        mostrarAlerta("A data de término deve ser posterior à data de início.", 'warning');
+        return;
+    }
+
+    const resposta = await fetch(`${API}/editar-trabalho/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            trabalhoId: trabalhoId,
+            titulo: titulo,
+            dataInicio: dataInicio,
+            dataFim: dataFim
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
+
+    if (resultado.sucesso) {
+        fecharModalEditarTrabalho();
+        await carregarDetalhesTrabalho();
+    }
+}
+
+function abrirModalEditarGrupo(grupoId) {
+    const grupo = trabalhoAtual.grupos.find(g => g.id === grupoId);
+    if (!grupo) return;
+
+    document.getElementById("editGrupoId").value = grupo.id;
+    document.getElementById("editGrupoNome").value = grupo.nome;
+    document.getElementById("editGrupoTema").value = grupo.tema;
+    document.getElementById("editGrupoLimite").value = grupo.limiteParticipantes;
+
+    document.getElementById("modalEditarGrupo").classList.remove("escondido");
+}
+
+function fecharModalEditarGrupo() {
+    document.getElementById("modalEditarGrupo").classList.add("escondido");
+}
+
+async function salvarEdicaoGrupo() {
+    const grupoId = document.getElementById("editGrupoId").value;
+    const nome = document.getElementById("editGrupoNome").value;
+    const tema = document.getElementById("editGrupoTema").value;
+    const limite = document.getElementById("editGrupoLimite").value;
+
+    if (!nome || !tema || !limite) {
+        mostrarAlerta("Preencha todos os campos do grupo.", 'warning');
+        return;
+    }
+
+    const resposta = await fetch(`${API}/editar-grupo/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            grupoId: grupoId,
+            nome: nome,
+            tema: tema,
+            limiteParticipantes: limite
+        })
+    });
+
+    const resultado = await resposta.json();
+
+    mostrarAlerta(resultado.mensagem, resultado.sucesso ? 'success' : 'error');
+
+    if (resultado.sucesso) {
+        fecharModalEditarGrupo();
+        await carregarDetalhesTrabalho();
     }
 }

@@ -95,7 +95,7 @@ function montarTrabalhoHTML(trabalho) {
 
                 <h4 class="mt-3 mb-3">Grupos disponíveis</h4>
 
-                <div class="grid-2">
+                <div class="flex-column" style="gap: 24px;">
                     ${trabalho.grupos.map(grupo => montarGrupoHTML(trabalho, grupo)).join("")}
                 </div>
             </div>
@@ -134,6 +134,7 @@ function montarGrupoHTML(trabalho, grupo) {
             <button
                 type="button"
                 class="btn btn-danger"
+                style="padding: 14px 24px; font-size: 16px;"
                 onclick="sairGrupo(${grupo.id})"
             >
                 Sair deste grupo
@@ -141,7 +142,7 @@ function montarGrupoHTML(trabalho, grupo) {
         `;
     } else if (alunoEstaEmOutroGrupoDoTrabalho) {
         botao = `
-            <button type="button" class="btn btn-outline" disabled>
+            <button type="button" class="btn btn-outline" disabled style="padding: 14px 24px; font-size: 16px;">
                 Já inscrito
             </button>
         `;
@@ -151,6 +152,7 @@ function montarGrupoHTML(trabalho, grupo) {
                 type="button"
                 class="btn ${lotado ? 'btn-secondary' : 'btn-primary'}"
                 ${lotado ? "disabled" : ""}
+                style="padding: 14px 24px; font-size: 16px;"
                 onclick="abrirInscricao(${trabalho.id}, ${grupo.id})"
             >
                 ${lotado ? "Lotado" : "Inscrever-se"}
@@ -159,20 +161,20 @@ function montarGrupoHTML(trabalho, grupo) {
     }
 
     return `
-        <div style="border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 20px; background: ${lotado ? 'var(--bg-color)' : 'var(--card-bg)'};">
+        <div class="grupo-card-aluno ${lotado ? 'lotado' : ''}">
             <div class="flex-between mb-3" style="align-items: flex-start;">
                 <div>
-                    <h5 style="font-size: 18px; margin-bottom: 8px;">${grupo.nome}</h5>
+                    <h5 style="font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">${grupo.nome}</h5>
 
                     <div class="tags-container">
-                        ${grupo.protegido ? `<span class="badge badge-warning">🔒 Protegido</span>` : ""}
+                        ${grupo.protegido ? `<span class="badge badge-warning" style="font-size: 14px;">🔒 Protegido</span>` : ""}
 
-                        <span class="badge badge-${lotado ? 'danger' : 'success'}">
+                        <span class="badge badge-${lotado ? 'danger' : 'success'}" style="font-size: 14px;">
                             ${lotado ? "Cheio" : `${livres} vaga(s)`}
                         </span>
 
                         ${alunoNoGrupo ? `
-                            <span class="badge badge-primary">
+                            <span class="badge badge-primary" style="font-size: 14px;">
                                 Você está neste grupo
                             </span>
                         ` : ""}
@@ -182,10 +184,10 @@ function montarGrupoHTML(trabalho, grupo) {
                 ${botao}
             </div>
 
-            <p style="margin-bottom: 4px;"><strong>Tema:</strong> ${grupo.tema}</p>
-            <p style="margin-bottom: 4px;"><strong>Participantes:</strong> ${ocupados}/${limite}</p>
+            <p style="font-size: 16px; margin-bottom: 8px;"><strong>Tema:</strong> ${grupo.tema}</p>
+            <p style="font-size: 16px; margin-bottom: 8px;"><strong>Participantes:</strong> ${ocupados}/${limite}</p>
 
-            <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">
+            <p style="color: var(--text-muted); font-size: 15px; margin-top: 16px;">
                 <strong>Alunos:</strong>
                 ${
                     grupo.alunos.length > 0
@@ -212,23 +214,26 @@ function montarAreaAlunoGrupo(grupo, alunoNoGrupo) {
         : [];
 
     return `
-        <div class="area-participacao">
-            <h4>Minha participação</h4>
+        <div class="area-participacao-premium">
+            <h4>🌟 Minha Participação</h4>
 
-            <div style="background: var(--card-bg); padding: 12px; border-radius: var(--radius-md); margin-bottom: 16px; border: 1px solid var(--success-hover);">
-                <strong>Sua nota:</strong>
-                <span style="color: var(--success); font-weight: 700;">${alunoNoGrupo.nota || "Professor ainda não lançou"}</span>
+            <div class="nota-destaque">
+                <span class="nota-destaque-title">Sua Nota Oficial</span>
+                <span class="nota-destaque-value">${alunoNoGrupo.nota || "-"}</span>
             </div>
 
             ${
                 alunoNoGrupo.observacao
-                ? `<p class="mb-3"><strong>Observação do professor:</strong> ${alunoNoGrupo.observacao}</p>`
+                ? `<div style="background: #fff; padding: 16px; border-left: 4px solid var(--primary); border-radius: 8px; margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+                       <strong style="display: block; color: var(--primary); margin-bottom: 4px; font-size: 14px; text-transform: uppercase;">Feedback do Professor:</strong>
+                       <span style="color: var(--text-main); font-size: 16px;">${alunoNoGrupo.observacao}</span>
+                   </div>`
                 : ""
             }
 
             <div class="form-group">
-                <label>Escolha sua função</label>
-                <select id="funcaoAluno-${grupo.id}">
+                <label style="font-size: 16px;">Qual será sua função?</label>
+                <select id="funcaoAluno-${grupo.id}" style="padding: 16px; font-size: 16px;">
                     <option value="">Selecione uma função</option>
                     ${funcoes.map(funcao => `
                         <option
@@ -242,20 +247,22 @@ function montarAreaAlunoGrupo(grupo, alunoNoGrupo) {
             </div>
 
             <div class="form-group">
-                <label>Anotações</label>
+                <label style="font-size: 16px;">Anotações Particulares</label>
                 <textarea
                     id="anotacaoAluno-${grupo.id}"
                     rows="3"
-                    placeholder="Escreva suas anotações sobre sua parte..."
+                    style="padding: 16px; font-size: 16px;"
+                    placeholder="Escreva suas anotações pessoais (só você vê isso)..."
                 >${alunoNoGrupo.anotacaoAluno || ""}</textarea>
             </div>
 
             <button
                 type="button"
                 class="btn btn-primary"
+                style="width: 100%; padding: 16px; font-size: 18px; margin-top: 8px;"
                 onclick="salvarMinhaParticipacao(${grupo.id})"
             >
-                Salvar minha participação
+                Salvar minhas informações
             </button>
         </div>
     `;
@@ -638,8 +645,14 @@ async function enviarMensagemGrupo(grupoId, prefixo = 'main') {
 function formatarData(data) {
     if (!data) return "";
 
-    const partes = data.split("-");
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    const dataObj = new Date(data);
+    const dia = String(dataObj.getDate()).padStart(2, '0');
+    const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+    const ano = dataObj.getFullYear();
+    const horas = String(dataObj.getHours()).padStart(2, '0');
+    const minutos = String(dataObj.getMinutes()).padStart(2, '0');
+
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 }
 
 carregarTrabalhosAluno();

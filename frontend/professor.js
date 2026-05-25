@@ -159,6 +159,21 @@ async function criarTrabalho() {
         return;
     }
 
+    const dataInicioObj = new Date(dataInicio);
+    const dataFimObj = new Date(dataFim);
+    const agora = new Date();
+    agora.setMinutes(agora.getMinutes() - 5); // 5 min de tolerância
+
+    if (dataInicioObj < agora) {
+        mensagem.innerText = "A data de início não pode estar no passado.";
+        return;
+    }
+
+    if (dataFimObj <= dataInicioObj) {
+        mensagem.innerText = "A data de término deve ser posterior à data de início.";
+        return;
+    }
+
     const algumGrupoSemTema = gruposVisuais.some(g => !g.tema.trim());
 
     if (algumGrupoSemTema) {
@@ -285,9 +300,19 @@ function abrirPaginaDetalhes(trabalhoId) {
 function formatarData(data) {
     if (!data) return "";
 
-    const partes = data.split("-");
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    const dataObj = new Date(data);
+    const dia = String(dataObj.getDate()).padStart(2, '0');
+    const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+    const ano = dataObj.getFullYear();
+    const horas = String(dataObj.getHours()).padStart(2, '0');
+    const minutos = String(dataObj.getMinutes()).padStart(2, '0');
+
+    return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
 }
+
+const agoraStr = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+document.getElementById("dataInicio").min = agoraStr;
+document.getElementById("dataFim").min = agoraStr;
 
 renderizarGrupos();
 carregarTrabalhos();

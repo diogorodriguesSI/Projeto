@@ -11,7 +11,9 @@ from .views import (
     remover_aluno_grupo,
     excluir_grupo,
     excluir_trabalho,
+    editar_trabalho,
     adicionar_grupo,
+    editar_grupo,
     atualizar_funcoes_grupo,
     atualizar_minha_participacao,
     lancar_nota,
@@ -29,6 +31,7 @@ urlpatterns = [
     path("sair-grupo/", sair_grupo),
 
     path("adicionar-grupo/", adicionar_grupo),
+    path("editar-grupo/", editar_grupo),
     path("excluir-grupo/", excluir_grupo),
 
     path("atualizar-participacao/", atualizar_participacao),
@@ -39,6 +42,7 @@ urlpatterns = [
 
     path("lancar-nota/", lancar_nota),
 
+    path("editar-trabalho/", editar_trabalho),
     path("excluir-trabalho/", excluir_trabalho),
 
     path("adicionar-mensagem-grupo/", adicionar_mensagem_grupo),

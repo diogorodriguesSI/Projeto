@@ -26,6 +26,10 @@
             <h2>Visão Geral do Trabalho</h2>
             
             <div class="flex-start">
+                <button type="button" class="btn btn-outline" onclick="abrirModalEditarTrabalho()">
+                    Editar Trabalho
+                </button>
+
                 <button type="button" class="btn btn-success" onclick="abrirModalAdicionarGrupo()">
                     + Adicionar Grupo
                 </button>
@@ -120,6 +124,94 @@
 
             <button type="button" class="btn btn-primary" onclick="adicionarGrupo()">
                 Adicionar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modalEditarTrabalho" class="modal-overlay escondido">
+    <div class="modal-content modal-md">
+        <div class="modal-header primary-bg">
+            <div>
+                <h2 style="font-size: 20px;">Editar Trabalho</h2>
+                <p>Altere as informações gerais do trabalho</p>
+            </div>
+
+            <button type="button" class="btn-icon" style="color: white; background: transparent; border: 1px solid rgba(255,255,255,0.3);" onclick="fecharModalEditarTrabalho()">
+                ✕
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Título do Trabalho</label>
+                <input type="text" id="editTrabalhoTitulo">
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Data de Início</label>
+                    <input type="datetime-local" id="editTrabalhoInicio">
+                </div>
+
+                <div class="form-group">
+                    <label>Data Final</label>
+                    <input type="datetime-local" id="editTrabalhoFim">
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="fecharModalEditarTrabalho()">
+                Cancelar
+            </button>
+
+            <button type="button" class="btn btn-primary" onclick="salvarEdicaoTrabalho()">
+                Salvar Alterações
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="modalEditarGrupo" class="modal-overlay escondido">
+    <div class="modal-content modal-md">
+        <div class="modal-header primary-bg">
+            <div>
+                <h2 style="font-size: 20px;">Editar Grupo</h2>
+                <p>Altere o nome e limites do grupo</p>
+            </div>
+
+            <button type="button" class="btn-icon" style="color: white; background: transparent; border: 1px solid rgba(255,255,255,0.3);" onclick="fecharModalEditarGrupo()">
+                ✕
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <input type="hidden" id="editGrupoId">
+            
+            <div class="form-group">
+                <label>Nome do grupo</label>
+                <input type="text" id="editGrupoNome">
+            </div>
+
+            <div class="form-group">
+                <label>Tema do grupo</label>
+                <input type="text" id="editGrupoTema">
+            </div>
+
+            <div class="form-group">
+                <label>Limite de participantes</label>
+                <input type="number" id="editGrupoLimite" min="1">
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="fecharModalEditarGrupo()">
+                Cancelar
+            </button>
+
+            <button type="button" class="btn btn-primary" onclick="salvarEdicaoGrupo()">
+                Salvar Alterações
             </button>
         </div>
     </div>
