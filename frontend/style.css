@@ -507,6 +507,23 @@ textarea:focus {
     border-color: var(--border-color);
 }
 
+/* ================== TRABALHO CARD PROFESSOR ================== */
+.trabalho-card-professor {
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    background: var(--card-bg);
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+}
+
+.trabalho-card-professor:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary);
+}
+
 .linha-funcao {
     display: grid;
     grid-template-columns: 1fr auto;

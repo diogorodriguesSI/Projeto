@@ -256,24 +256,24 @@ async function carregarTrabalhos() {
 
     meusTrabalhos.forEach(trabalho => {
         const div = document.createElement("div");
-        div.className = "card";
+        div.className = "trabalho-card-professor";
 
         div.innerHTML = `
-            <div class="flex-between mb-3">
+            <div class="flex-between mb-3" style="align-items: flex-start;">
                 <div>
-                    <h3 style="font-size: 20px; color: var(--text-main); margin-bottom: 4px;">${trabalho.titulo}</h3>
+                    <h3 style="font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 12px;">${trabalho.titulo}</h3>
                     <div class="tags-container">
-                        <span class="badge badge-primary">${trabalho.materia}</span>
-                        <span class="badge badge-warning">${trabalho.periodo}º Período</span>
+                        <span class="badge badge-primary" style="font-size: 14px;">${trabalho.materia}</span>
+                        <span class="badge badge-warning" style="font-size: 14px;">${trabalho.periodo}º Período</span>
                     </div>
                 </div>
 
-                <button type="button" class="btn btn-outline" onclick="abrirPaginaDetalhes(${trabalho.id})">
-                    Analisar
+                <button type="button" class="btn btn-outline" style="padding: 14px 24px; font-size: 16px;" onclick="abrirPaginaDetalhes(${trabalho.id})">
+                    Analisar / Editar
                 </button>
             </div>
 
-            <div class="info-grid">
+            <div class="info-grid" style="margin-top: 24px;">
                 <div class="info-box">
                     <span>Início</span>
                     <strong>${formatarData(trabalho.dataInicio)}</strong>
